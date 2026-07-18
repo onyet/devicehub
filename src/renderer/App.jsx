@@ -1,10 +1,9 @@
 import {
-  AlertTriangle,
   ArrowLeft,
   CheckCircle2,
-  ChevronRight,
+  ClipboardCheck,
   ExternalLink,
-  Globe2,
+  Grid2X2,
   Heart,
   History,
   Home,
@@ -17,7 +16,6 @@ import {
   Settings,
   ShieldCheck,
   Sun,
-  Wrench,
   X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -44,13 +42,14 @@ const dictionaries = {
     appSubtitle: "Direktori portal resmi",
     unofficial: "Direktori tidak resmi. Bukan afiliasi vendor.",
     home: "Beranda",
+    directory: "Direktori Vendor",
     emergency: "Darurat",
     settings: "Pengaturan",
     about: "Tentang",
     recoveryWizard: "Wizard Pemulihan",
     startWizard: "Mulai Wizard",
-    headline: "Portal resmi pemulihan perangkat dalam satu aplikasi.",
-    supporting: "Pilih vendor, buka portal resminya, lalu ikuti checklist pemulihan lokal.",
+    headline: "Cari perangkat yang hilang?",
+    supporting: "Akses cepat ke portal resmi dari semua vendor.",
     searchVendor: "Cari vendor",
     searchPlaceholder: "Cari Google, Apple, Samsung...",
     vendorDirectory: "Direktori Vendor",
@@ -58,6 +57,8 @@ const dictionaries = {
     openPortal: "Buka Portal",
     viewDetails: "Detail",
     favorites: "Favorit",
+    checklist: "Checklist",
+    history: "Riwayat",
     recent: "Terakhir Dibuka",
     emptyFavorites: "Belum ada favorit.",
     emptyRecent: "Riwayat masih kosong.",
@@ -95,6 +96,9 @@ const dictionaries = {
     secureDefaults: "Browser Eksternal",
     localOnly: "Data",
     noTracking: "Backend",
+    trustTitle: "Aman & Resmi",
+    trustCopy: "Semua portal adalah situs resmi dari masing-masing vendor.",
+    learnMore: "Pelajari lebih lanjut",
     addFavorite: "Tambah favorit",
     removeFavorite: "Hapus favorit"
   },
@@ -102,13 +106,14 @@ const dictionaries = {
     appSubtitle: "Official portal directory",
     unofficial: "Unofficial directory. Not affiliated with vendors.",
     home: "Home",
+    directory: "Vendor Directory",
     emergency: "Emergency",
     settings: "Settings",
     about: "About",
     recoveryWizard: "Recovery Wizard",
     startWizard: "Start Wizard",
-    headline: "Official device recovery portals in one app.",
-    supporting: "Choose a vendor, open its official portal, and follow a local recovery checklist.",
+    headline: "Find a missing device?",
+    supporting: "Fast access to official portals from every listed vendor.",
     searchVendor: "Search vendor",
     searchPlaceholder: "Search Google, Apple, Samsung...",
     vendorDirectory: "Vendor Directory",
@@ -116,6 +121,8 @@ const dictionaries = {
     openPortal: "Open Portal",
     viewDetails: "Details",
     favorites: "Favorites",
+    checklist: "Checklist",
+    history: "History",
     recent: "Recently Opened",
     emptyFavorites: "No favorites yet.",
     emptyRecent: "No recent portals yet.",
@@ -153,6 +160,9 @@ const dictionaries = {
     secureDefaults: "External Browser",
     localOnly: "Data",
     noTracking: "Backend",
+    trustTitle: "Official Portals",
+    trustCopy: "Each portal links to the vendor's official website.",
+    learnMore: "Learn more",
     addFavorite: "Add favorite",
     removeFavorite: "Remove favorite"
   },
@@ -160,13 +170,14 @@ const dictionaries = {
     appSubtitle: "官方门户目录",
     unofficial: "非官方目录。与厂商没有隶属关系。",
     home: "首页",
+    directory: "厂商目录",
     emergency: "紧急",
     settings: "设置",
     about: "关于",
     recoveryWizard: "恢复向导",
     startWizard: "开始向导",
-    headline: "一个应用打开官方设备恢复门户。",
-    supporting: "选择厂商，打开官方门户，并使用本地恢复清单。",
+    headline: "查找丢失的设备？",
+    supporting: "快速访问已列厂商的官方门户。",
     searchVendor: "搜索厂商",
     searchPlaceholder: "搜索 Google、Apple、Samsung...",
     vendorDirectory: "厂商目录",
@@ -174,6 +185,8 @@ const dictionaries = {
     openPortal: "打开门户",
     viewDetails: "详情",
     favorites: "收藏",
+    checklist: "清单",
+    history: "历史",
     recent: "最近打开",
     emptyFavorites: "暂无收藏。",
     emptyRecent: "暂无历史记录。",
@@ -209,6 +222,9 @@ const dictionaries = {
     secureDefaults: "外部浏览器",
     localOnly: "数据",
     noTracking: "后端",
+    trustTitle: "官方门户",
+    trustCopy: "每个入口都指向对应厂商的官方网站。",
+    learnMore: "了解更多",
     addFavorite: "添加收藏",
     removeFavorite: "取消收藏"
   }
@@ -283,7 +299,10 @@ const checklistItems = [
 
 const navItems = [
   { id: "home", labelKey: "home", icon: Home },
-  { id: "emergency", labelKey: "emergency", icon: ShieldCheck },
+  { id: "directory", labelKey: "directory", icon: Grid2X2 },
+  { id: "emergency", labelKey: "checklist", icon: ClipboardCheck },
+  { id: "favorites", labelKey: "favorites", icon: Heart },
+  { id: "history", labelKey: "history", icon: History },
   { id: "settings", labelKey: "settings", icon: Settings },
   { id: "about", labelKey: "about", icon: Info }
 ];
@@ -353,54 +372,58 @@ export default function App() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-slate-100 text-slate-950 transition dark:bg-neutral-950 dark:text-neutral-50">
-      <TitleBar />
-      <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1">
-        <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 lg:flex lg:flex-col">
-          <div className="flex h-16 items-center border-b border-slate-200 px-5 dark:border-neutral-800">
+    <main className="flex h-screen overflow-hidden bg-white text-slate-950 transition dark:bg-neutral-950 dark:text-neutral-50">
+      <aside className="hidden w-[316px] shrink-0 border-r border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 lg:flex lg:flex-col">
+        <div className="drag-region flex h-16 items-center px-7">
+          <div className="no-drag">
             <Brand t={t} />
           </div>
-          <nav className="flex-1 space-y-1 px-3 py-4">
-            {navItems.map((item) => (
+        </div>
+        <nav className="flex-1 space-y-2 px-4 py-7">
+          {navItems.map((item, index) => (
+            <div key={item.id}>
               <NavButton
-                key={item.id}
                 item={item}
                 active={route === item.id}
                 label={t[item.labelKey]}
                 onClick={() => setRoute(item.id)}
               />
-            ))}
-          </nav>
-          <div className="border-t border-slate-200 p-4 dark:border-neutral-800">
-            <SecuritySummary t={t} />
-          </div>
-        </aside>
-
-        <section className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95 sm:px-6">
-            <div className="flex w-full items-center justify-between gap-3">
-              <div className="lg:hidden">
-                <Brand t={t} compact />
-              </div>
-              <div className="hidden min-w-0 lg:block">
-                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{t.unofficial}</p>
-              </div>
-              <div className="no-drag flex items-center gap-2">
-                <LanguageSwitch language={language} setLanguage={setLanguage} />
-                <button
-                  type="button"
-                  title={theme === "dark" ? t.light : t.dark}
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="grid size-10 place-items-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-                >
-                  {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-                </button>
-              </div>
+              {index === 4 && <div className="my-6 h-px bg-slate-200 dark:bg-neutral-800" />}
             </div>
-          </header>
+          ))}
+        </nav>
+        <div className="px-7 pb-7">
+          <SecuritySummary t={t} />
+        </div>
+      </aside>
 
-          <div className="flex-1 px-4 py-5 pb-24 sm:px-6 lg:px-8 lg:py-8">
-            {route === "home" && (
+      <section className="flex min-w-0 flex-1 flex-col">
+        <header className="drag-region flex h-16 shrink-0 items-center border-b border-slate-200 bg-white px-4 dark:border-neutral-800 dark:bg-neutral-950 sm:px-6 lg:px-12">
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="no-drag lg:hidden">
+              <Brand t={t} compact />
+            </div>
+            <div className="hidden lg:block" />
+            <div className="no-drag flex items-center gap-2">
+              <LanguageSwitch language={language} setLanguage={setLanguage} />
+              <button
+                type="button"
+                title={theme === "dark" ? t.light : t.dark}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="grid size-9 place-items-center rounded-md text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-900"
+              >
+                {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+              </button>
+              <WindowButton title="Minimize" onClick={api.window.minimize} icon={Minimize2} />
+              <WindowButton title="Maximize" onClick={api.window.toggleMaximize} icon={Maximize2} />
+              <WindowButton title="Close" onClick={api.window.close} icon={X} />
+            </div>
+          </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-8 pb-24 sm:px-6 lg:px-12 lg:py-12">
+          <div className="mx-auto max-w-[1120px]">
+            {(route === "home" || route === "directory") && (
               <HomePage
                 t={t}
                 vendors={vendors}
@@ -437,6 +460,24 @@ export default function App() {
                 setCheckedItems={setCheckedItems}
               />
             )}
+            {route === "favorites" && (
+              <CollectionPage
+                title={t.favorites}
+                empty={t.emptyFavorites}
+                vendors={vendors.filter((vendor) => favorites.includes(vendor.id))}
+                onOpenDetail={openVendorDetail}
+                onOpenVendor={openVendor}
+              />
+            )}
+            {route === "history" && (
+              <CollectionPage
+                title={t.history}
+                empty={t.emptyRecent}
+                vendors={history.map((id) => vendors.find((vendor) => vendor.id === id)).filter(Boolean)}
+                onOpenDetail={openVendorDetail}
+                onOpenVendor={openVendor}
+              />
+            )}
             {route === "settings" && (
               <SettingsPage
                 t={t}
@@ -450,28 +491,10 @@ export default function App() {
             )}
             {route === "about" && <AboutPage t={t} />}
           </div>
-          <MobileNav t={t} route={route} setRoute={setRoute} />
-        </section>
-      </div>
-    </main>
-  );
-}
-
-function TitleBar() {
-  return (
-    <div className="drag-region flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white/96 px-3 dark:border-neutral-800 dark:bg-neutral-950/96">
-      <div className="flex min-w-0 items-center gap-2 pl-1">
-        <div className="grid size-6 place-items-center rounded-md bg-slate-950 text-white dark:bg-white dark:text-slate-950">
-          <ShieldCheck size={14} strokeWidth={2.4} />
         </div>
-        <span className="truncate text-[13px] font-semibold text-slate-700 dark:text-neutral-200">DeviceHub</span>
-      </div>
-      <div className="no-drag flex items-center gap-1">
-        <WindowButton title="Minimize" onClick={api.window.minimize} icon={Minimize2} />
-        <WindowButton title="Maximize" onClick={api.window.toggleMaximize} icon={Maximize2} />
-        <WindowButton title="Close" onClick={api.window.close} icon={X} danger />
-      </div>
-    </div>
+        <MobileNav t={t} route={route} setRoute={setRoute} />
+      </section>
+    </main>
   );
 }
 
@@ -495,13 +518,22 @@ function WindowButton({ title, onClick, icon: Icon, danger = false }) {
 function Brand({ t, compact = false }) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`${compact ? "size-9" : "size-11"} grid shrink-0 place-items-center rounded-md bg-slate-950 text-white dark:bg-white dark:text-slate-950`}>
-        <ShieldCheck size={compact ? 19 : 22} />
-      </div>
+      <DeviceHubMark compact={compact} />
       <div className="min-w-0">
-        <p className={`${compact ? "text-base" : "text-lg"} font-semibold leading-tight`}>DeviceHub</p>
-        <p className="truncate text-xs font-medium text-slate-500 dark:text-neutral-400">{t.appSubtitle}</p>
+        <p className={`${compact ? "text-base" : "text-lg"} font-semibold leading-tight text-slate-950 dark:text-neutral-50`}>DeviceHub</p>
+        {!compact && <p className="sr-only">{t.appSubtitle}</p>}
       </div>
+    </div>
+  );
+}
+
+function DeviceHubMark({ compact = false }) {
+  return (
+    <div className={`${compact ? "h-7 w-8" : "h-7 w-10"} relative shrink-0`}>
+      <div className="absolute left-2 top-0 h-5 w-6 rounded-[7px] bg-slate-950 shadow-sm dark:bg-neutral-100" />
+      <div className="absolute left-0 top-2 h-5 w-6 rounded-[7px] bg-slate-950 shadow-sm dark:bg-neutral-100" />
+      <div className="absolute left-[5px] top-[13px] size-2 rounded-full bg-orange-500 ring-2 ring-white dark:ring-neutral-950" />
+      <div className="absolute left-[15px] top-[9px] size-1.5 rounded-full bg-sky-400" />
     </div>
   );
 }
@@ -512,24 +544,23 @@ function NavButton({ item, active, label, onClick }) {
       type="button"
       title={label}
       onClick={onClick}
-      className={`flex h-11 w-full items-center justify-between rounded-md px-3 text-sm font-medium transition ${
+      className={`flex h-14 w-full items-center justify-between rounded-lg px-4 text-[15px] font-semibold transition ${
         active
-          ? "bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950"
-          : "text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-900"
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+          : "text-slate-950 hover:bg-slate-50 dark:text-neutral-100 dark:hover:bg-neutral-900"
       }`}
     >
       <span className="flex items-center gap-3">
-        <item.icon size={18} />
+        <item.icon size={21} strokeWidth={active ? 2.2 : 2} />
         {label}
       </span>
-      {active && <ChevronRight size={16} />}
     </button>
   );
 }
 
 function MobileNav({ t, route, setRoute }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-4 border-t border-slate-200 bg-white/96 px-2 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-7 border-t border-slate-200 bg-white/96 px-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
       {navItems.map((item) => {
         const active = route === item.id;
         return (
@@ -553,7 +584,7 @@ function MobileNav({ t, route, setRoute }) {
 
 function LanguageSwitch({ language, setLanguage }) {
   return (
-    <label className="flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+    <label className="flex h-9 items-center gap-2 rounded-md px-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-900">
       <Languages size={16} />
       <select
         value={language}
@@ -572,138 +603,192 @@ function LanguageSwitch({ language, setLanguage }) {
 
 function HomePage({
   t,
-  vendors,
   filteredVendors,
   query,
   setQuery,
-  favorites,
-  history,
-  onStartWizard,
   onOpenDetail,
-  onOpenVendor,
-  onToggleFavorite
+  onOpenVendor
 }) {
-  const favoriteVendors = vendors.filter((vendor) => favorites.includes(vendor.id));
-  const recentVendors = history.map((id) => vendors.find((vendor) => vendor.id === id)).filter(Boolean);
+  const androidVendors = filteredVendors.filter((vendor) => vendor.category === "Android");
+  const appleVendors = filteredVendors.filter((vendor) => vendor.category !== "Android");
+  const firstVendor = androidVendors[0] ?? appleVendors[0];
 
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 sm:p-7">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-            <AlertTriangle size={17} />
-            {t.unofficial}
-          </div>
-          <h1 className="max-w-4xl text-3xl font-semibold leading-tight tracking-normal sm:text-5xl">{t.headline}</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-neutral-300">{t.supporting}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={onStartWizard}
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
-            >
-              <Wrench size={17} />
-              {t.startWizard}
-            </button>
-            <a
-              href="#vendors"
-              className="inline-flex h-11 items-center gap-2 rounded-md border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-            >
-              <Globe2 size={17} />
-              {t.vendorDirectory}
-            </a>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-          <MetricCard label={t.secureDefaults} value="external_only" />
-          <MetricCard label={t.localOnly} value="favorites + checklist" />
-          <MetricCard label={t.noTracking} value="no credentials" />
-        </div>
+    <div className="space-y-9">
+      <section className="max-w-4xl">
+        <h1 className="text-[34px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50 sm:text-[38px]">
+          {t.headline}
+        </h1>
+        <p className="mt-3 text-base font-medium text-slate-500 dark:text-neutral-400">{t.supporting}</p>
+        <label className="mt-7 flex h-[58px] w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] focus-within:border-emerald-500 dark:border-neutral-800 dark:bg-neutral-950">
+          <Search size={22} className="shrink-0 text-slate-900 dark:text-neutral-100" strokeWidth={2} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t.searchPlaceholder}
+            className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-slate-900 outline-none placeholder:text-slate-400 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+          />
+        </label>
       </section>
 
-      <section id="vendors" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-4">
-          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-            <div>
-              <h2 className="text-xl font-semibold">{t.vendorDirectory}</h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{t.searchVendor}</p>
-            </div>
-            <label className="flex h-11 w-full items-center gap-2 rounded-md border border-slate-300 bg-white px-3 md:max-w-sm dark:border-neutral-700 dark:bg-neutral-900">
-              <Search size={18} className="text-slate-400" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t.searchPlaceholder}
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-              />
-            </label>
+      {androidVendors.length > 0 && (
+        <VendorSection title={t.android}>
+          {androidVendors.map((vendor) => (
+            <VendorCard key={vendor.id} t={t} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+          ))}
+        </VendorSection>
+      )}
+
+      {appleVendors.length > 0 && (
+        <VendorSection title="Apple">
+          {appleVendors.map((vendor) => (
+            <VendorCard key={vendor.id} t={t} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+          ))}
+        </VendorSection>
+      )}
+
+      <section className="flex min-h-[92px] items-center justify-between gap-5 rounded-xl bg-emerald-50/70 px-5 py-4 dark:bg-emerald-950/30 sm:px-7">
+        <div className="flex items-center gap-4">
+          <div className="grid size-12 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200">
+            <ShieldCheck size={23} />
           </div>
-          <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
-            {filteredVendors.map((vendor) => (
-              <VendorCard
-                key={vendor.id}
-                t={t}
-                vendor={vendor}
-                isFavorite={favorites.includes(vendor.id)}
-                onOpenDetail={onOpenDetail}
-                onOpenVendor={onOpenVendor}
-                onToggleFavorite={onToggleFavorite}
-              />
-            ))}
+          <div>
+            <h2 className="font-bold text-slate-950 dark:text-neutral-50">{t.trustTitle}</h2>
+            <p className="mt-1 text-sm font-medium text-slate-600 dark:text-neutral-300">{t.trustCopy}</p>
           </div>
         </div>
-        <div className="space-y-4">
-          <BookmarkPanel title={t.favorites} vendors={favoriteVendors} empty={t.emptyFavorites} onOpenDetail={onOpenDetail} icon={Heart} />
-          <BookmarkPanel title={t.recent} vendors={recentVendors} empty={t.emptyRecent} onOpenDetail={onOpenDetail} icon={History} />
-        </div>
+        {firstVendor && (
+          <button
+            type="button"
+            onClick={() => onOpenDetail(firstVendor.id)}
+            className="hidden items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 sm:inline-flex"
+          >
+            {t.learnMore}
+            <ExternalLink size={16} />
+          </button>
+        )}
       </section>
     </div>
   );
 }
 
-function VendorCard({ t, vendor, isFavorite, onOpenDetail, onOpenVendor, onToggleFavorite }) {
+function VendorSection({ title, children }) {
   return (
-    <article className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <button type="button" onClick={() => onOpenDetail(vendor.id)} className="min-w-0 text-left">
-          <p className="truncate text-lg font-semibold">{vendor.name}</p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{vendor.category}</p>
-        </button>
-        <button
-          type="button"
-          title={isFavorite ? t.removeFavorite : t.addFavorite}
-          onClick={() => onToggleFavorite(vendor.id)}
-          className={`grid size-9 shrink-0 place-items-center rounded-md border ${
-            isFavorite
-              ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-900 dark:bg-rose-950"
-              : "border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-          }`}
-        >
-          <Heart size={17} fill={isFavorite ? "currentColor" : "none"} />
-        </button>
-      </div>
-      <p className="min-h-20 text-sm leading-6 text-slate-600 dark:text-neutral-300">{vendor.description}</p>
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-neutral-800">
-        <StatusBadge t={t} status={vendor.status} />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => onOpenDetail(vendor.id)}
-            className="h-9 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-          >
-            {t.viewDetails}
-          </button>
-          <button
-            type="button"
-            onClick={() => onOpenVendor(vendor)}
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
-          >
-            <ExternalLink size={15} />
-            {t.openPortal}
-          </button>
-        </div>
-      </div>
+    <section className="space-y-4">
+      <h2 className="text-lg font-extrabold text-slate-950 dark:text-neutral-50">{title}</h2>
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{children}</div>
+    </section>
+  );
+}
+
+function VendorCard({ t, vendor, onOpenDetail, onOpenVendor }) {
+  const meta = getVendorPresentation(vendor);
+
+  return (
+    <article className="group relative flex min-h-[140px] rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:border-slate-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700">
+      <button type="button" onClick={() => onOpenDetail(vendor.id)} className="flex min-w-0 flex-1 items-start gap-5 text-left">
+        <VendorLogo meta={meta} />
+        <span className="min-w-0 pt-1">
+          <span className="block truncate text-[17px] font-extrabold text-slate-950 dark:text-neutral-50">{vendor.name}</span>
+          <span className="mt-1 block text-[15px] font-medium text-slate-600 dark:text-neutral-300">{meta.service}</span>
+          <span className="mt-2 block max-w-[220px] text-[14px] font-medium leading-6 text-slate-500 dark:text-neutral-400">
+            {meta.summary}
+          </span>
+        </span>
+      </button>
+      <button
+        type="button"
+        title={t.openPortal}
+        onClick={() => onOpenVendor(vendor)}
+        className="absolute right-5 top-5 grid size-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-neutral-400 dark:hover:bg-neutral-900 dark:hover:text-neutral-50"
+      >
+        <ExternalLink size={20} strokeWidth={1.8} />
+      </button>
     </article>
+  );
+}
+
+function VendorLogo({ meta }) {
+  if (meta.id === "oppo") {
+    return <span className="flex size-12 shrink-0 items-center justify-center text-[19px] font-extrabold text-emerald-600">oppo</span>;
+  }
+
+  return (
+    <span className={`grid size-12 shrink-0 place-items-center rounded-full text-[25px] font-extrabold ${meta.logoClass}`}>
+      {meta.mark}
+    </span>
+  );
+}
+
+function getVendorPresentation(vendor) {
+  const summaries = {
+    google: {
+      service: "Find My Device",
+      summary: "Temukan, kunci, atau hapus perangkat Android.",
+      mark: "G",
+      logoClass: "bg-white text-blue-600",
+      id: "google"
+    },
+    samsung: {
+      service: "SmartThings Find",
+      summary: "Temukan perangkat Galaxy Anda.",
+      mark: "S",
+      logoClass: "bg-blue-50 text-blue-600 dark:bg-blue-950",
+      id: "samsung"
+    },
+    xiaomi: {
+      service: "Xiaomi Cloud",
+      summary: "Temukan, kunci, atau hapus perangkat Xiaomi.",
+      mark: "mi",
+      logoClass: "bg-orange-500 text-white text-[19px]",
+      id: "xiaomi"
+    },
+    huawei: {
+      service: "Huawei Cloud",
+      summary: "Temukan perangkat Huawei Anda.",
+      mark: "H",
+      logoClass: "bg-red-50 text-red-600 dark:bg-red-950",
+      id: "huawei"
+    },
+    oppo: {
+      service: "OPPO Cloud",
+      summary: "Temukan perangkat OPPO Anda.",
+      mark: "oppo",
+      logoClass: "text-emerald-600",
+      id: "oppo"
+    },
+    apple: {
+      service: "Find My",
+      summary: "Temukan perangkat iPhone, iPad, Mac, dan lainnya.",
+      mark: "●",
+      logoClass: "bg-white text-black dark:bg-neutral-950 dark:text-white",
+      id: "apple"
+    }
+  };
+
+  return summaries[vendor.id] ?? {
+    service: vendor.name,
+    summary: vendor.description,
+    mark: vendor.name.slice(0, 1),
+    logoClass: "bg-slate-100 text-slate-700 dark:bg-neutral-900 dark:text-neutral-200",
+    id: vendor.id
+  };
+}
+
+function CollectionPage({ title, empty, vendors, onOpenDetail, onOpenVendor }) {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-[34px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50">{title}</h1>
+      {vendors.length === 0 ? (
+        <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{empty}</p>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {vendors.map((vendor) => (
+            <VendorCard key={vendor.id} t={{ openPortal: title }} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -898,9 +983,14 @@ function AboutPage({ t }) {
 
 function SecuritySummary({ t }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <p className="text-sm font-semibold">{t.privacyTitle}</p>
-      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-neutral-400">{t.privacyCopy}</p>
+    <div className="flex items-start gap-4">
+      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+        <ShieldCheck size={22} />
+      </div>
+      <div className="min-w-0 pt-0.5">
+        <p className="text-[14px] font-extrabold text-slate-950 dark:text-neutral-50">{t.privacyTitle}</p>
+        <p className="mt-1 text-[13px] font-medium leading-5 text-slate-600 dark:text-neutral-400">{t.privacyCopy}</p>
+      </div>
     </div>
   );
 }
