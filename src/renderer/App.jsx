@@ -323,7 +323,6 @@ const checklistItems = [
 const navItems = [
   { id: "home", labelKey: "home", icon: Home },
   { id: "emergency", labelKey: "checklist", icon: ClipboardCheck },
-  { id: "favorites", labelKey: "favorites", icon: Heart },
   { id: "history", labelKey: "history", icon: History },
   { id: "settings", labelKey: "settings", icon: Settings },
   { id: "about", labelKey: "about", icon: Info }
@@ -410,7 +409,7 @@ export default function App() {
                 label={t[item.labelKey]}
                 onClick={() => setRoute(item.id)}
               />
-              {index === 3 && <div className="my-6 h-px bg-slate-200 dark:bg-neutral-800" />}
+              {index === 2 && <div className="my-6 h-px bg-slate-200 dark:bg-neutral-800" />}
             </div>
           ))}
         </nav>
@@ -420,13 +419,13 @@ export default function App() {
       </aside>
 
       <section className="flex min-w-0 flex-1 flex-col">
-        <header className="drag-region flex h-16 shrink-0 items-center border-b border-slate-200 bg-white px-4 dark:border-neutral-800 dark:bg-neutral-950 sm:px-6 lg:px-12">
+        <header className="drag-region flex h-16 shrink-0 items-center border-b border-slate-200 bg-white pl-4 pr-1 dark:border-neutral-800 dark:bg-neutral-950 sm:pl-6 sm:pr-1 lg:pl-12 lg:pr-1">
           <div className="flex w-full items-center justify-between gap-3">
             <div className="no-drag lg:hidden">
               <Brand t={t} compact />
             </div>
             <div className="hidden lg:block" />
-            <div className="no-drag flex items-center gap-2">
+            <div className="no-drag flex items-center gap-1">
               <LanguageSwitch language={language} setLanguage={setLanguage} />
               <button
                 type="button"
@@ -483,15 +482,6 @@ export default function App() {
                 setCheckedItems={setCheckedItems}
               />
             )}
-            {route === "favorites" && (
-              <CollectionPage
-                title={t.favorites}
-                empty={t.emptyFavorites}
-                vendors={vendors.filter((vendor) => favorites.includes(vendor.id))}
-                onOpenDetail={openVendorDetail}
-                onOpenVendor={openVendor}
-              />
-            )}
             {route === "history" && (
               <CollectionPage
                 title={t.history}
@@ -528,7 +518,7 @@ function WindowButton({ title, onClick, icon: Icon, danger = false }) {
       type="button"
       title={title}
       onClick={onClick}
-      className={`grid size-8 place-items-center rounded-md transition ${
+      className={`grid h-10 w-10 place-items-center rounded-md transition ${
         danger
           ? "text-slate-500 hover:bg-red-500 hover:text-white dark:text-neutral-400"
           : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50"
@@ -584,7 +574,7 @@ function NavButton({ item, active, label, onClick }) {
 
 function MobileNav({ t, route, setRoute }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-6 border-t border-slate-200 bg-white/96 px-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-5 border-t border-slate-200 bg-white/96 px-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
       {navItems.map((item) => {
         const active = route === item.id;
         return (
