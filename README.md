@@ -12,6 +12,7 @@ DeviceHub adalah aplikasi desktop berbasis Electron untuk membuka portal resmi p
 - UI desktop dengan custom window, custom titlebar, scrollbar konsisten, dan icon dari asset lokal.
 - Multi bahasa: Indonesia, English (en-US), dan Chinese (zh-CN).
 - Font lokal dari folder `fonts/`.
+- Auto updater untuk build packaged melalui GitHub Releases.
 
 ## Vendor Saat Ini
 
@@ -56,6 +57,25 @@ Target package mengikuti konfigurasi `electron-builder`:
 - macOS: `dmg`
 - Windows: `nsis`
 - Linux: `AppImage` dan `deb`
+
+## Auto Updater
+
+Auto updater memakai `electron-updater` dengan provider GitHub:
+
+```text
+owner: onyet
+repo: devicehub
+```
+
+Updater aktif hanya saat aplikasi berjalan sebagai packaged build. Di mode development, panel update tetap muncul di Pengaturan tetapi statusnya ditandai nonaktif.
+
+Alur update:
+
+1. Aplikasi packaged otomatis mengecek update beberapa detik setelah dibuka.
+2. Jika ada release baru, update diunduh otomatis.
+3. Setelah download selesai, pengguna dapat memilih `Restart & pasang` dari halaman Pengaturan.
+
+Untuk publikasi release, gunakan tag versi yang sesuai dengan `version` di `package.json`, lalu unggah artifact hasil `electron-builder` ke GitHub Releases repo `onyet/devicehub`.
 
 ## Validasi Link
 

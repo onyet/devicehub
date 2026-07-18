@@ -27,13 +27,26 @@
     "directories": {
       "buildResources": "assets"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "onyet",
+        "repo": "devicehub"
+      }
+    ],
     "mac": {
-      "target": "dmg"
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
+      "icon": "icons/web/favicon.ico",
       "target": "nsis"
     },
     "linux": {
+      "icon": "icons/web/icon-512.png",
       "target": [
         "AppImage",
         "deb"
@@ -42,6 +55,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
+    "electron-updater": "^6.8.9",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

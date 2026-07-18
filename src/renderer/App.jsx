@@ -9,6 +9,7 @@ import {
   Languages,
   Minimize2,
   Moon,
+  RefreshCw,
   Search,
   Settings,
   ShieldCheck,
@@ -30,6 +31,24 @@ import fallbackVendors from "../data/vendors.json";
 const api = window.devicehub ?? {
   getVendors: async () => fallbackVendors,
   openExternal: async (url) => window.open(url, "_blank", "noopener,noreferrer"),
+  updater: {
+    getStatus: async () => ({
+      state: "disabled",
+      message: "Auto update is only available in packaged builds.",
+      version: "dev",
+      progress: 0,
+      availableVersion: null
+    }),
+    check: async () => ({
+      state: "disabled",
+      message: "Auto update is only available in packaged builds.",
+      version: "dev",
+      progress: 0,
+      availableVersion: null
+    }),
+    install: async () => false,
+    onStatus: () => () => {}
+  },
   window: {
     minimize: async () => {},
     toggleMaximize: async () => {},
@@ -92,6 +111,19 @@ const dictionaries = {
     language: "Bahasa",
     localData: "Data lokal",
     clearHistory: "Hapus riwayat",
+    updates: "Pembaruan aplikasi",
+    updateDescription: "Cek release terbaru dari GitHub dan pasang saat aplikasi packaged berjalan.",
+    updateCheck: "Cek update",
+    updateInstall: "Restart & pasang",
+    updateDisabled: "Auto update aktif setelah aplikasi dibuat sebagai paket installer.",
+    updateIdle: "DeviceHub sudah memakai versi terbaru.",
+    updateChecking: "Mengecek update...",
+    updateAvailable: "Update tersedia, sedang diunduh.",
+    updateDownloading: "Mengunduh update...",
+    updateDownloaded: "Update sudah siap dipasang.",
+    updateError: "Update belum bisa dicek.",
+    currentVersion: "Versi saat ini",
+    availableVersion: "Versi tersedia",
     light: "Terang",
     dark: "Gelap",
     privacyTitle: "Privasi",
@@ -164,6 +196,19 @@ const dictionaries = {
     language: "Language",
     localData: "Local data",
     clearHistory: "Clear history",
+    updates: "App updates",
+    updateDescription: "Check the latest GitHub release and install it when the packaged app is running.",
+    updateCheck: "Check update",
+    updateInstall: "Restart & install",
+    updateDisabled: "Auto update is available after the app is built as an installer package.",
+    updateIdle: "DeviceHub is already on the latest version.",
+    updateChecking: "Checking for updates...",
+    updateAvailable: "Update available, downloading now.",
+    updateDownloading: "Downloading update...",
+    updateDownloaded: "Update is ready to install.",
+    updateError: "Update could not be checked.",
+    currentVersion: "Current version",
+    availableVersion: "Available version",
     light: "Light",
     dark: "Dark",
     privacyTitle: "Privacy",
@@ -234,6 +279,19 @@ const dictionaries = {
     language: "语言",
     localData: "本地数据",
     clearHistory: "清除历史",
+    updates: "应用更新",
+    updateDescription: "在打包后的应用中检查 GitHub 最新发布并安装更新。",
+    updateCheck: "检查更新",
+    updateInstall: "重启并安装",
+    updateDisabled: "自动更新会在应用打包为安装程序后启用。",
+    updateIdle: "DeviceHub 已是最新版本。",
+    updateChecking: "正在检查更新...",
+    updateAvailable: "发现更新，正在下载。",
+    updateDownloading: "正在下载更新...",
+    updateDownloaded: "更新已准备安装。",
+    updateError: "暂时无法检查更新。",
+    currentVersion: "当前版本",
+    availableVersion: "可用版本",
     light: "浅色",
     dark: "深色",
     privacyTitle: "隐私",
@@ -354,10 +412,22 @@ export default function App() {
   const [checkedItems, setCheckedItems] = useLocalStorage("devicehub:checklist", []);
   const [theme, setTheme] = useLocalStorage("devicehub:theme", "light");
   const [language, setLanguage] = useLocalStorage("devicehub:language", "id-ID");
+  const [updaterStatus, setUpdaterStatus] = useState({
+    state: "idle",
+    message: "",
+    version: "",
+    progress: 0,
+    availableVersion: null
+  });
 
   const t = dictionaries[language] ?? dictionaries["id-ID"];
   useEffect(() => {
     api.getVendors().then(setVendors).catch(() => setVendors(fallbackVendors));
+  }, []);
+
+  useEffect(() => {
+    api.updater.getStatus().then(setUpdaterStatus).catch(() => {});
+    return api.updater.onStatus(setUpdaterStatus);
   }, []);
 
   useEffect(() => {
@@ -392,6 +462,19 @@ export default function App() {
   function openVendorDetail(vendorId) {
     setSelectedVendorId(vendorId);
     setRoute("vendor");
+  }
+
+  async function checkUpdates() {
+    try {
+      setUpdaterStatus(await api.updater.check());
+    } catch (error) {
+      setUpdaterStatus((status) => ({
+        ...status,
+        state: "error",
+        message: error.message,
+        progress: 0
+      }));
+    }
   }
 
   return (
@@ -500,6 +583,9 @@ export default function App() {
                 language={language}
                 setLanguage={setLanguage}
                 onClearHistory={() => setHistory([])}
+                updaterStatus={updaterStatus}
+                onCheckUpdates={checkUpdates}
+                onInstallUpdate={api.updater.install}
               />
             )}
             {route === "about" && <AboutPage t={t} />}
@@ -1138,7 +1224,12 @@ function EmergencyPage({ t, checklistItems, privacyServices, language, checkedIt
   );
 }
 
-function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory }) {
+function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory, updaterStatus, onCheckUpdates, onInstallUpdate }) {
+  const isChecking = updaterStatus.state === "checking" || updaterStatus.state === "available" || updaterStatus.state === "downloading";
+  const canInstall = updaterStatus.state === "downloaded";
+  const canCheck = updaterStatus.state !== "disabled" && !isChecking;
+  const updateMessage = getUpdaterMessage(t, updaterStatus);
+
   return (
     <div className="space-y-5">
       <h1 className="text-3xl font-semibold">{t.settings}</h1>
@@ -1174,9 +1265,69 @@ function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistor
           </button>
         </div>
       </SettingBlock>
+      <SettingBlock title={t.updates} description={t.updateDescription}>
+        <div className="flex min-w-[260px] flex-col gap-3 sm:items-end">
+          <div className="w-full rounded-lg bg-slate-50 p-3 text-sm dark:bg-neutral-950 sm:w-[320px]">
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-semibold text-slate-500 dark:text-neutral-400">{t.currentVersion}</span>
+              <span className="font-bold text-slate-950 dark:text-neutral-50">{updaterStatus.version || "-"}</span>
+            </div>
+            {updaterStatus.availableVersion && (
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <span className="font-semibold text-slate-500 dark:text-neutral-400">{t.availableVersion}</span>
+                <span className="font-bold text-emerald-700 dark:text-emerald-300">{updaterStatus.availableVersion}</span>
+              </div>
+            )}
+            <p className="mt-3 leading-6 text-slate-600 dark:text-neutral-300">{updateMessage}</p>
+            {updaterStatus.state === "downloading" && (
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-neutral-800">
+                <div
+                  className="h-full rounded-full bg-emerald-600 transition-all dark:bg-emerald-400"
+                  style={{ width: `${Math.max(0, Math.min(100, updaterStatus.progress ?? 0))}%` }}
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap justify-end gap-3">
+            <button
+              type="button"
+              onClick={onCheckUpdates}
+              disabled={!canCheck}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-55 dark:border-neutral-700 dark:hover:bg-neutral-800"
+            >
+              <RefreshCw size={16} className={isChecking ? "animate-spin" : ""} />
+              {t.updateCheck}
+            </button>
+            {canInstall && (
+              <button
+                type="button"
+                onClick={onInstallUpdate}
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-emerald-600 px-3 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                <CheckCircle2 size={16} />
+                {t.updateInstall}
+              </button>
+            )}
+          </div>
+        </div>
+      </SettingBlock>
       <SettingBlock title={t.linkHealth} description={t.huaweiReview} />
     </div>
   );
+}
+
+function getUpdaterMessage(t, updaterStatus) {
+  const messages = {
+    disabled: t.updateDisabled,
+    idle: t.updateIdle,
+    checking: t.updateChecking,
+    available: t.updateAvailable,
+    downloading: t.updateDownloading,
+    downloaded: t.updateDownloaded,
+    error: t.updateError
+  };
+
+  return messages[updaterStatus.state] ?? updaterStatus.message ?? t.updateIdle;
 }
 
 function AboutPage({ t }) {
