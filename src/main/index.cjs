@@ -13,11 +13,7 @@ function createWindow() {
     title: "DeviceHub",
     backgroundColor: "#f8fafc",
     frame: false,
-    titleBarStyle: "hidden",
-    trafficLightPosition: {
-      x: 14,
-      y: 16
-    },
+    icon: path.join(__dirname, "../../icons/android/play_store_512.png"),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.cjs"),
       contextIsolation: true,

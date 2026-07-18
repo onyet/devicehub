@@ -21,6 +21,7 @@
       "src/main/**",
       "src/preload/**",
       "src/data/**",
+      "icons/**",
       "package.json"
     ],
     "directories": {

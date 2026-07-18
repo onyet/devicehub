@@ -3,23 +3,23 @@ import {
   CheckCircle2,
   ClipboardCheck,
   ExternalLink,
-  Grid2X2,
   Heart,
   History,
   Home,
   Info,
   Languages,
-  Maximize2,
   Minimize2,
   Moon,
   Search,
   Settings,
   ShieldCheck,
+  Square,
   Sun,
   X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import appleLogo from "../../icons/apple-logo-svgrepo-com.svg";
+import appIcon from "../../icons/web/icon-192.png";
 import googleLogo from "../../icons/google-icon-logo-svgrepo-com.svg";
 import huaweiLogo from "../../icons/huawei.svg";
 import oppoLogo from "../../icons/OPPO_logo.svg";
@@ -48,7 +48,6 @@ const dictionaries = {
     appSubtitle: "Direktori portal resmi",
     unofficial: "Direktori tidak resmi. Bukan afiliasi vendor.",
     home: "Beranda",
-    directory: "Direktori Vendor",
     emergency: "Darurat",
     settings: "Pengaturan",
     about: "Tentang",
@@ -119,7 +118,6 @@ const dictionaries = {
     appSubtitle: "Official portal directory",
     unofficial: "Unofficial directory. Not affiliated with vendors.",
     home: "Home",
-    directory: "Vendor Directory",
     emergency: "Emergency",
     settings: "Settings",
     about: "About",
@@ -190,7 +188,6 @@ const dictionaries = {
     appSubtitle: "官方门户目录",
     unofficial: "非官方目录。与厂商没有隶属关系。",
     home: "首页",
-    directory: "厂商目录",
     emergency: "紧急",
     settings: "设置",
     about: "关于",
@@ -325,7 +322,6 @@ const checklistItems = [
 
 const navItems = [
   { id: "home", labelKey: "home", icon: Home },
-  { id: "directory", labelKey: "directory", icon: Grid2X2 },
   { id: "emergency", labelKey: "checklist", icon: ClipboardCheck },
   { id: "favorites", labelKey: "favorites", icon: Heart },
   { id: "history", labelKey: "history", icon: History },
@@ -414,7 +410,7 @@ export default function App() {
                 label={t[item.labelKey]}
                 onClick={() => setRoute(item.id)}
               />
-              {index === 4 && <div className="my-6 h-px bg-slate-200 dark:bg-neutral-800" />}
+              {index === 3 && <div className="my-6 h-px bg-slate-200 dark:bg-neutral-800" />}
             </div>
           ))}
         </nav>
@@ -441,15 +437,15 @@ export default function App() {
                 {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
               </button>
               <WindowButton title="Minimize" onClick={api.window.minimize} icon={Minimize2} />
-              <WindowButton title="Maximize" onClick={api.window.toggleMaximize} icon={Maximize2} />
-              <WindowButton title="Close" onClick={api.window.close} icon={X} />
+              <WindowButton title="Maximize" onClick={api.window.toggleMaximize} icon={Square} />
+              <WindowButton title="Exit" onClick={api.window.close} icon={X} />
             </div>
           </div>
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-8 pb-24 sm:px-6 lg:px-12 lg:py-12">
           <div className="mx-auto max-w-[1120px]">
-            {(route === "home" || route === "directory") && (
+            {route === "home" && (
               <HomePage
                 t={t}
                 vendors={vendors}
@@ -557,12 +553,12 @@ function Brand({ t, compact = false }) {
 
 function DeviceHubMark({ compact = false }) {
   return (
-    <div className={`${compact ? "h-7 w-8" : "h-7 w-10"} relative shrink-0`}>
-      <div className="absolute left-2 top-0 h-5 w-6 rounded-[7px] bg-slate-950 shadow-sm dark:bg-neutral-100" />
-      <div className="absolute left-0 top-2 h-5 w-6 rounded-[7px] bg-slate-950 shadow-sm dark:bg-neutral-100" />
-      <div className="absolute left-[5px] top-[13px] size-2 rounded-full bg-orange-500 ring-2 ring-white dark:ring-neutral-950" />
-      <div className="absolute left-[15px] top-[9px] size-1.5 rounded-full bg-sky-400" />
-    </div>
+    <img
+      src={appIcon}
+      alt=""
+      aria-hidden="true"
+      className={`${compact ? "size-8" : "size-9"} shrink-0 rounded-lg object-contain`}
+    />
   );
 }
 
@@ -588,7 +584,7 @@ function NavButton({ item, active, label, onClick }) {
 
 function MobileNav({ t, route, setRoute }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-7 border-t border-slate-200 bg-white/96 px-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-6 border-t border-slate-200 bg-white/96 px-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
       {navItems.map((item) => {
         const active = route === item.id;
         return (
