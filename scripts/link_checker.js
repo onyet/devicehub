@@ -7,6 +7,7 @@ const allowedDomains = new Map([
   ["xiaomi", ["i.mi.com", "mi.com"]],
   ["huawei", ["huawei.com"]],
   ["oppo", ["oppo.com"]],
+  ["microsoft", ["microsoft.com"]],
   ["haveibeenpwned", ["haveibeenpwned.com"]]
 ]);
 

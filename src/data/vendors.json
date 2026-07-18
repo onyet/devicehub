@@ -72,6 +72,18 @@
     "status": "needs_review"
   },
   {
+    "id": "microsoft",
+    "name": "Microsoft",
+    "category": "Windows",
+    "description": "Microsoft Devices untuk melihat perangkat Windows, Xbox, dan perangkat lain yang terhubung ke akun Microsoft.",
+    "logo": "logos/microsoft.svg",
+    "officialUrl": "https://account.microsoft.com/devices",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "needs_review"
+  },
+  {
     "id": "haveibeenpwned",
     "name": "Have I Been Pwned",
     "category": "privacy",

@@ -21,6 +21,7 @@ import appleLogo from "../../icons/apple-logo-svgrepo-com.svg";
 import appIcon from "../../icons/web/icon-192.png";
 import googleLogo from "../../icons/google-icon-logo-svgrepo-com.svg";
 import huaweiLogo from "../../icons/huawei.svg";
+import microsoftLogo from "../../icons/microsoft-svgrepo-com.svg";
 import oppoLogo from "../../icons/OPPO_logo.svg";
 import samsungLogo from "../../icons/samsung-s-svgrepo-com.svg";
 import xiaomiLogo from "../../icons/xiaomi-mi-logo-icon.svg";
@@ -100,7 +101,7 @@ const dictionaries = {
     aboutSafety:
       "Portal dibuka melalui browser eksternal secara default untuk menghindari masalah login OAuth di embedded browser.",
     linkHealth: "Kesehatan Link",
-    huaweiReview: "Huawei sedang ditandai perlu review karena pemeriksaan otomatis terakhir menerima 502.",
+    huaweiReview: "Huawei dan Microsoft ditandai perlu review karena pemeriksaan otomatis terakhir belum menerima respons sukses.",
     secureDefaults: "Browser Eksternal",
     localOnly: "Data",
     noTracking: "Backend",
@@ -172,7 +173,7 @@ const dictionaries = {
     aboutSafety:
       "Portals open in the external browser by default to avoid OAuth login issues in embedded browsers.",
     linkHealth: "Link Health",
-    huaweiReview: "Huawei is marked for review because the latest automated check received a 502 response.",
+    huaweiReview: "Huawei and Microsoft are marked for review because the latest automated check did not receive a successful response.",
     secureDefaults: "External Browser",
     localOnly: "Data",
     noTracking: "Backend",
@@ -240,7 +241,7 @@ const dictionaries = {
     aboutCopy: "DeviceHub 是通往官方厂商恢复门户的非官方目录。所有名称和商标均归各自所有者。",
     aboutSafety: "默认使用外部浏览器打开门户，以避免嵌入式浏览器中的 OAuth 登录问题。",
     linkHealth: "链接状态",
-    huaweiReview: "Huawei 已标记为需复核，因为最近的自动检查收到 502 响应。",
+    huaweiReview: "Huawei 和 Microsoft 已标记为需复核，因为最近的自动检查未收到成功响应。",
     secureDefaults: "外部浏览器",
     localOnly: "数据",
     noTracking: "后端",
@@ -625,8 +626,11 @@ function HomePage({
   onOpenDetail,
   onOpenVendor
 }) {
-  const androidVendors = filteredVendors.filter((vendor) => vendor.category === "Android");
-  const appleVendors = filteredVendors.filter((vendor) => vendor.category !== "Android");
+  const vendorSections = ["Android", "iPhone/iPad", "Windows"].map((category) => ({
+    category,
+    title: category === "iPhone/iPad" ? "Apple" : category,
+    vendors: filteredVendors.filter((vendor) => vendor.category === category)
+  }));
 
   return (
     <div className="space-y-9">
@@ -648,20 +652,14 @@ function HomePage({
         </label>
       </section>
 
-      {androidVendors.length > 0 && (
-        <VendorSection title={t.android}>
-          {androidVendors.map((vendor) => (
-            <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
-          ))}
-        </VendorSection>
-      )}
-
-      {appleVendors.length > 0 && (
-        <VendorSection title="Apple">
-          {appleVendors.map((vendor) => (
-            <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
-          ))}
-        </VendorSection>
+      {vendorSections.map((section) =>
+        section.vendors.length > 0 && (
+          <VendorSection key={section.category} title={section.title}>
+            {section.vendors.map((vendor) => (
+              <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+            ))}
+          </VendorSection>
+        )
       )}
 
       {privacyServices.length > 0 && (
@@ -913,6 +911,27 @@ function getVendorPresentation(vendor, language = "id-ID") {
       logoUrl: appleLogo,
       logoImageClass: "dark:invert",
       id: "apple"
+    },
+    microsoft: {
+      service: {
+        "id-ID": "Microsoft Devices",
+        "en-US": "Microsoft Devices",
+        "zh-CN": "Microsoft 设备"
+      },
+      summary: {
+        "id-ID": "Kelola perangkat Windows, Xbox, dan perangkat lain dari akun Microsoft.",
+        "en-US": "Manage Windows, Xbox, and other devices from your Microsoft account.",
+        "zh-CN": "通过 Microsoft 帐户管理 Windows、Xbox 和其他设备。"
+      },
+      supports: {
+        "id-ID": "Windows, Xbox",
+        "en-US": "Windows, Xbox",
+        "zh-CN": "Windows、Xbox"
+      },
+      mark: "M",
+      logoClass: "bg-white text-blue-600",
+      logoUrl: microsoftLogo,
+      id: "microsoft"
     },
     haveibeenpwned: {
       service: {
