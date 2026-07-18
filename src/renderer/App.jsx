@@ -449,6 +449,7 @@ export default function App() {
               <HomePage
                 t={t}
                 filteredVendors={filteredVendors}
+                privacyServices={privacyServices}
                 query={query}
                 setQuery={setQuery}
                 onLearnMore={() => setRoute("learn")}
@@ -617,6 +618,7 @@ function HomePage({
   t,
   language,
   filteredVendors,
+  privacyServices,
   query,
   setQuery,
   onLearnMore,
@@ -656,6 +658,19 @@ function HomePage({
         <VendorSection title="Apple">
           {appleVendors.map((vendor) => (
             <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+          ))}
+        </VendorSection>
+      )}
+
+      {privacyServices.length > 0 && (
+        <VendorSection title={t.privacyCheckTitle}>
+          {privacyServices.map((service) => (
+            <PrivacyServiceCard
+              key={service.id}
+              service={service}
+              language={language}
+              onOpenVendor={onOpenVendor}
+            />
           ))}
         </VendorSection>
       )}
@@ -721,6 +736,28 @@ function VendorCard({ t, language, vendor, onOpenDetail, onOpenVendor }) {
         <ExternalLink size={20} strokeWidth={1.8} />
       </button>
     </article>
+  );
+}
+
+function PrivacyServiceCard({ service, language, onOpenVendor }) {
+  const meta = getVendorPresentation(service, language);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpenVendor(service)}
+      className="flex min-h-[112px] items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:border-emerald-500 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-neutral-800 dark:bg-neutral-950"
+    >
+      <span className="flex min-w-0 items-center gap-5">
+        <VendorLogo meta={meta} />
+        <span className="min-w-0">
+          <span className="block font-extrabold text-slate-950 dark:text-neutral-50">{service.name}</span>
+          <span className="mt-1 block text-[15px] font-medium text-slate-600 dark:text-neutral-300">{meta.service}</span>
+          <span className="mt-2 block text-sm leading-6 text-slate-500 dark:text-neutral-400">{meta.summary}</span>
+        </span>
+      </span>
+      <ExternalLink size={20} className="shrink-0 text-slate-500" strokeWidth={1.8} />
+    </button>
   );
 }
 
@@ -1061,27 +1098,14 @@ function EmergencyPage({ t, checklistItems, privacyServices, language, checkedIt
             </div>
           </div>
           <div className="mt-5 grid gap-3">
-            {privacyServices.map((service) => {
-              const meta = getVendorPresentation(service, language);
-
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  onClick={() => onOpenVendor(service)}
-                  className="flex min-h-20 items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 text-left hover:border-emerald-500 dark:border-neutral-800 dark:bg-neutral-950"
-                >
-                  <span className="flex min-w-0 items-center gap-4">
-                    <VendorLogo meta={meta} />
-                    <span className="min-w-0">
-                      <span className="block font-semibold text-slate-950 dark:text-neutral-50">{service.name}</span>
-                      <span className="mt-1 block text-sm text-slate-500 dark:text-neutral-400">{meta.summary}</span>
-                    </span>
-                  </span>
-                  <ExternalLink size={18} className="shrink-0 text-slate-500" />
-                </button>
-              );
-            })}
+            {privacyServices.map((service) => (
+              <PrivacyServiceCard
+                key={service.id}
+                service={service}
+                language={language}
+                onOpenVendor={onOpenVendor}
+              />
+            ))}
           </div>
           <div className="mt-5 rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600 dark:bg-neutral-950 dark:text-neutral-300">
             <p>{t.privacyCheckNote}</p>
