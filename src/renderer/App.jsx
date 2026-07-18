@@ -978,7 +978,7 @@ function WizardPage({ t, vendors, onBack, onOpenVendor }) {
       : vendors.filter((vendor) => vendor.category === "Android");
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="space-y-6">
       <BackButton label={t.back} onBack={onBack} />
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <h1 className="text-3xl font-semibold">{t.recoveryWizard}</h1>
@@ -1031,7 +1031,7 @@ function VendorDetailPage({ t, language, vendor, onBack, onOpenVendor }) {
   const meta = getVendorPresentation(vendor, language);
 
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <BackButton label={t.back} onBack={onBack} />
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div className="flex items-start gap-5">
@@ -1069,7 +1069,7 @@ function EmergencyPage({ t, checklistItems, privacyServices, language, checkedIt
   }
 
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <h1 className="text-3xl font-semibold">{t.checklistTitle}</h1>
         <p className="mt-2 text-slate-600 dark:text-neutral-300">{t.checklistSubtitle}</p>
@@ -1121,7 +1121,7 @@ function EmergencyPage({ t, checklistItems, privacyServices, language, checkedIt
 
 function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory }) {
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <h1 className="text-3xl font-semibold">{t.settings}</h1>
       <section className="grid gap-4 md:grid-cols-2">
         <SettingBlock title={t.theme} description={theme === "dark" ? t.dark : t.light}>
@@ -1162,7 +1162,7 @@ function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistor
 
 function AboutPage({ t }) {
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <h1 className="text-3xl font-semibold">{t.about}</h1>
       <section className="rounded-lg border border-slate-200 bg-white p-6 leading-7 text-slate-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
         <p>{t.aboutCopy}</p>
@@ -1186,7 +1186,7 @@ function LearnMorePage({ t, onBack }) {
   ];
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="space-y-6">
       <BackButton label={t.back} onBack={onBack} />
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-neutral-800 dark:bg-neutral-950 sm:p-8">
         <div className="flex items-start gap-5">
