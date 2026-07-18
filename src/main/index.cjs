@@ -12,6 +12,12 @@ function createWindow() {
     minHeight: 640,
     title: "DeviceHub",
     backgroundColor: "#f8fafc",
+    frame: false,
+    titleBarStyle: "hidden",
+    trafficLightPosition: {
+      x: 14,
+      y: 16
+    },
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.cjs"),
       contextIsolation: true,
@@ -29,6 +35,27 @@ function createWindow() {
 
 app.whenReady().then(() => {
   ipcMain.handle("vendors:get", getVendors);
+
+  ipcMain.handle("window:minimize", (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.minimize();
+  });
+
+  ipcMain.handle("window:toggleMaximize", (event) => {
+    const currentWindow = BrowserWindow.fromWebContents(event.sender);
+    if (!currentWindow) return false;
+
+    if (currentWindow.isMaximized()) {
+      currentWindow.unmaximize();
+      return false;
+    }
+
+    currentWindow.maximize();
+    return true;
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.close();
+  });
 
   ipcMain.handle("portal:openExternal", async (_event, url) => {
     const parsed = new URL(url);

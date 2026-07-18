@@ -10,19 +10,27 @@ import {
   Home,
   Info,
   Languages,
+  Maximize2,
+  Minimize2,
   Moon,
   Search,
   Settings,
   ShieldCheck,
   Sun,
-  Wrench
+  Wrench,
+  X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import fallbackVendors from "../data/vendors.json";
 
 const api = window.devicehub ?? {
   getVendors: async () => fallbackVendors,
-  openExternal: async (url) => window.open(url, "_blank", "noopener,noreferrer")
+  openExternal: async (url) => window.open(url, "_blank", "noopener,noreferrer"),
+  window: {
+    minimize: async () => {},
+    toggleMaximize: async () => {},
+    close: async () => window.close()
+  }
 };
 
 const languages = [
@@ -41,9 +49,8 @@ const dictionaries = {
     about: "Tentang",
     recoveryWizard: "Wizard Pemulihan",
     startWizard: "Mulai Wizard",
-    headline: "Akses portal resmi pemulihan perangkat, tanpa mencari ulang saat panik.",
-    supporting:
-      "DeviceHub membantu membuka portal vendor yang benar, menyimpan checklist lokal, dan menjaga proses tetap sederhana.",
+    headline: "Portal resmi pemulihan perangkat dalam satu aplikasi.",
+    supporting: "Pilih vendor, buka portal resminya, lalu ikuti checklist pemulihan lokal.",
     searchVendor: "Cari vendor",
     searchPlaceholder: "Cari Google, Apple, Samsung...",
     vendorDirectory: "Direktori Vendor",
@@ -85,9 +92,9 @@ const dictionaries = {
       "Portal dibuka melalui browser eksternal secara default untuk menghindari masalah login OAuth di embedded browser.",
     linkHealth: "Kesehatan Link",
     huaweiReview: "Huawei sedang ditandai perlu review karena pemeriksaan otomatis terakhir menerima 502.",
-    secureDefaults: "Default Aman",
-    localOnly: "Data Lokal",
-    noTracking: "Tanpa Pelacakan",
+    secureDefaults: "Browser Eksternal",
+    localOnly: "Data",
+    noTracking: "Backend",
     addFavorite: "Tambah favorit",
     removeFavorite: "Hapus favorit"
   },
@@ -100,9 +107,8 @@ const dictionaries = {
     about: "About",
     recoveryWizard: "Recovery Wizard",
     startWizard: "Start Wizard",
-    headline: "Open the right official recovery portal without searching under pressure.",
-    supporting:
-      "DeviceHub helps you launch trusted vendor portals, keep a local checklist, and stay focused during recovery.",
+    headline: "Official device recovery portals in one app.",
+    supporting: "Choose a vendor, open its official portal, and follow a local recovery checklist.",
     searchVendor: "Search vendor",
     searchPlaceholder: "Search Google, Apple, Samsung...",
     vendorDirectory: "Vendor Directory",
@@ -144,9 +150,9 @@ const dictionaries = {
       "Portals open in the external browser by default to avoid OAuth login issues in embedded browsers.",
     linkHealth: "Link Health",
     huaweiReview: "Huawei is marked for review because the latest automated check received a 502 response.",
-    secureDefaults: "Secure Defaults",
-    localOnly: "Local Data",
-    noTracking: "No Tracking",
+    secureDefaults: "External Browser",
+    localOnly: "Data",
+    noTracking: "Backend",
     addFavorite: "Add favorite",
     removeFavorite: "Remove favorite"
   },
@@ -159,8 +165,8 @@ const dictionaries = {
     about: "关于",
     recoveryWizard: "恢复向导",
     startWizard: "开始向导",
-    headline: "无需临时搜索，直接打开正确的官方设备恢复门户。",
-    supporting: "DeviceHub 帮助你打开可信厂商门户，保存本地清单，并让恢复步骤更清晰。",
+    headline: "一个应用打开官方设备恢复门户。",
+    supporting: "选择厂商，打开官方门户，并使用本地恢复清单。",
     searchVendor: "搜索厂商",
     searchPlaceholder: "搜索 Google、Apple、Samsung...",
     vendorDirectory: "厂商目录",
@@ -200,9 +206,9 @@ const dictionaries = {
     aboutSafety: "默认使用外部浏览器打开门户，以避免嵌入式浏览器中的 OAuth 登录问题。",
     linkHealth: "链接状态",
     huaweiReview: "Huawei 已标记为需复核，因为最近的自动检查收到 502 响应。",
-    secureDefaults: "安全默认",
-    localOnly: "本地数据",
-    noTracking: "无追踪",
+    secureDefaults: "外部浏览器",
+    localOnly: "数据",
+    noTracking: "后端",
     addFavorite: "添加收藏",
     removeFavorite: "取消收藏"
   }
@@ -347,10 +353,11 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-950 transition dark:bg-neutral-950 dark:text-neutral-50">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1440px]">
+    <main className="flex min-h-screen flex-col bg-slate-100 text-slate-950 transition dark:bg-neutral-950 dark:text-neutral-50">
+      <TitleBar />
+      <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1">
         <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 lg:flex lg:flex-col">
-          <div className="border-b border-slate-200 px-5 py-5 dark:border-neutral-800">
+          <div className="flex h-16 items-center border-b border-slate-200 px-5 dark:border-neutral-800">
             <Brand t={t} />
           </div>
           <nav className="flex-1 space-y-1 px-3 py-4">
@@ -370,15 +377,15 @@ export default function App() {
         </aside>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95 sm:px-6">
-            <div className="flex items-center justify-between gap-3">
+          <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95 sm:px-6">
+            <div className="flex w-full items-center justify-between gap-3">
               <div className="lg:hidden">
                 <Brand t={t} compact />
               </div>
               <div className="hidden min-w-0 lg:block">
                 <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{t.unofficial}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="no-drag flex items-center gap-2">
                 <LanguageSwitch language={language} setLanguage={setLanguage} />
                 <button
                   type="button"
@@ -392,7 +399,7 @@ export default function App() {
             </div>
           </header>
 
-          <div className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+          <div className="flex-1 px-4 py-5 pb-24 sm:px-6 lg:px-8 lg:py-8">
             {route === "home" && (
               <HomePage
                 t={t}
@@ -443,9 +450,45 @@ export default function App() {
             )}
             {route === "about" && <AboutPage t={t} />}
           </div>
+          <MobileNav t={t} route={route} setRoute={setRoute} />
         </section>
       </div>
     </main>
+  );
+}
+
+function TitleBar() {
+  return (
+    <div className="drag-region flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white/96 px-3 dark:border-neutral-800 dark:bg-neutral-950/96">
+      <div className="flex min-w-0 items-center gap-2 pl-1">
+        <div className="grid size-6 place-items-center rounded-md bg-slate-950 text-white dark:bg-white dark:text-slate-950">
+          <ShieldCheck size={14} strokeWidth={2.4} />
+        </div>
+        <span className="truncate text-[13px] font-semibold text-slate-700 dark:text-neutral-200">DeviceHub</span>
+      </div>
+      <div className="no-drag flex items-center gap-1">
+        <WindowButton title="Minimize" onClick={api.window.minimize} icon={Minimize2} />
+        <WindowButton title="Maximize" onClick={api.window.toggleMaximize} icon={Maximize2} />
+        <WindowButton title="Close" onClick={api.window.close} icon={X} danger />
+      </div>
+    </div>
+  );
+}
+
+function WindowButton({ title, onClick, icon: Icon, danger = false }) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className={`grid size-8 place-items-center rounded-md transition ${
+        danger
+          ? "text-slate-500 hover:bg-red-500 hover:text-white dark:text-neutral-400"
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50"
+      }`}
+    >
+      <Icon size={15} strokeWidth={2.2} />
+    </button>
   );
 }
 
@@ -481,6 +524,30 @@ function NavButton({ item, active, label, onClick }) {
       </span>
       {active && <ChevronRight size={16} />}
     </button>
+  );
+}
+
+function MobileNav({ t, route, setRoute }) {
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-4 border-t border-slate-200 bg-white/96 px-2 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/96 lg:hidden">
+      {navItems.map((item) => {
+        const active = route === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            title={t[item.labelKey]}
+            onClick={() => setRoute(item.id)}
+            className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold ${
+              active ? "text-emerald-700 dark:text-emerald-300" : "text-slate-500 dark:text-neutral-400"
+            }`}
+          >
+            <item.icon size={19} strokeWidth={active ? 2.4 : 2} />
+            <span className="max-w-full truncate">{t[item.labelKey]}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 }
 

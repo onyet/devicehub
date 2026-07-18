@@ -9,6 +9,7 @@
 - Portal vendor dibuka via browser eksternal sebagai default aman.
 - Link checker awal berjalan; Huawei saat ini mengembalikan 502 dan ditandai perlu review.
 - Redesign dashboard profesional dan dukungan multi bahasa awal tersedia untuk Indonesia, English US, dan Chinese.
+- Custom frameless window, titlebar aplikasi, mobile nav, dan font lokal Plus Jakarta Sans sudah diterapkan.
 
 ## Prinsip Produk
 
