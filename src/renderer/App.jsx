@@ -105,6 +105,13 @@ const dictionaries = {
     trustTitle: "Aman & Resmi",
     trustCopy: "Semua portal adalah situs resmi dari masing-masing vendor.",
     learnMore: "Pelajari lebih lanjut",
+    learnTitle: "Tentang portal resmi",
+    learnIntro:
+      "DeviceHub hanya membantu membuka portal resmi vendor. Proses login, verifikasi, pelacakan, penguncian, dan penghapusan data tetap dilakukan di situs vendor.",
+    learnPointOfficial: "Link vendor dicek dari sumber resmi dan dibuka sebagai halaman HTTPS.",
+    learnPointExternal: "Portal dibuka di browser eksternal agar alur login vendor tetap normal.",
+    learnPointLocal: "Favorit, riwayat, dan checklist tersimpan lokal di perangkat ini.",
+    learnPointNoAccount: "DeviceHub tidak meminta akun baru, password, OTP, atau akses lokasi.",
     addFavorite: "Tambah favorit",
     removeFavorite: "Hapus favorit"
   },
@@ -169,6 +176,13 @@ const dictionaries = {
     trustTitle: "Official Portals",
     trustCopy: "Each portal links to the vendor's official website.",
     learnMore: "Learn more",
+    learnTitle: "About official portals",
+    learnIntro:
+      "DeviceHub only helps open official vendor portals. Login, verification, tracking, locking, and remote wipe remain inside the vendor website.",
+    learnPointOfficial: "Vendor links are checked against official HTTPS destinations.",
+    learnPointExternal: "Portals open in the external browser so vendor login flows work normally.",
+    learnPointLocal: "Favorites, history, and checklist progress stay local on this device.",
+    learnPointNoAccount: "DeviceHub does not ask for a new account, password, OTP, or location access.",
     addFavorite: "Add favorite",
     removeFavorite: "Remove favorite"
   },
@@ -231,6 +245,12 @@ const dictionaries = {
     trustTitle: "官方门户",
     trustCopy: "每个入口都指向对应厂商的官方网站。",
     learnMore: "了解更多",
+    learnTitle: "关于官方门户",
+    learnIntro: "DeviceHub 只帮助打开厂商官方门户。登录、验证、定位、锁定和远程清除仍在厂商网站内完成。",
+    learnPointOfficial: "厂商链接会按官方 HTTPS 地址进行检查。",
+    learnPointExternal: "门户默认在外部浏览器打开，以保持厂商登录流程正常。",
+    learnPointLocal: "收藏、历史记录和清单进度只保存在本设备。",
+    learnPointNoAccount: "DeviceHub 不要求新账号、密码、OTP 或位置权限。",
     addFavorite: "添加收藏",
     removeFavorite: "取消收藏"
   }
@@ -439,6 +459,7 @@ export default function App() {
                 favorites={favorites}
                 history={history}
                 onStartWizard={() => setRoute("wizard")}
+                onLearnMore={() => setRoute("learn")}
                 onOpenDetail={openVendorDetail}
                 onOpenVendor={openVendor}
                 onToggleFavorite={toggleFavorite}
@@ -496,6 +517,7 @@ export default function App() {
               />
             )}
             {route === "about" && <AboutPage t={t} />}
+            {route === "learn" && <LearnMorePage t={t} onBack={() => setRoute("home")} />}
           </div>
         </div>
         <MobileNav t={t} route={route} setRoute={setRoute} />
@@ -612,12 +634,12 @@ function HomePage({
   filteredVendors,
   query,
   setQuery,
+  onLearnMore,
   onOpenDetail,
   onOpenVendor
 }) {
   const androidVendors = filteredVendors.filter((vendor) => vendor.category === "Android");
   const appleVendors = filteredVendors.filter((vendor) => vendor.category !== "Android");
-  const firstVendor = androidVendors[0] ?? appleVendors[0];
 
   return (
     <div className="space-y-9">
@@ -663,16 +685,14 @@ function HomePage({
             <p className="mt-1 text-sm font-medium text-slate-600 dark:text-neutral-300">{t.trustCopy}</p>
           </div>
         </div>
-        {firstVendor && (
-          <button
-            type="button"
-            onClick={() => onOpenDetail(firstVendor.id)}
-            className="hidden items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 sm:inline-flex"
-          >
-            {t.learnMore}
-            <ExternalLink size={16} />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onLearnMore}
+          className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-300"
+        >
+          {t.learnMore}
+          <ExternalLink size={16} />
+        </button>
       </section>
     </div>
   );
@@ -999,6 +1019,48 @@ function AboutPage({ t }) {
         <MetricCard label={t.secureDefaults} value="shell.openExternal" />
         <MetricCard label={t.localOnly} value="localStorage" />
         <MetricCard label={t.noTracking} value="no backend" />
+      </section>
+    </div>
+  );
+}
+
+function LearnMorePage({ t, onBack }) {
+  const points = [
+    t.learnPointOfficial,
+    t.learnPointExternal,
+    t.learnPointLocal,
+    t.learnPointNoAccount
+  ];
+
+  return (
+    <div className="max-w-4xl space-y-6">
+      <BackButton label={t.back} onBack={onBack} />
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-neutral-800 dark:bg-neutral-950 sm:p-8">
+        <div className="flex items-start gap-5">
+          <div className="grid size-12 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+            <ShieldCheck size={24} />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-[30px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50">
+              {t.learnTitle}
+            </h1>
+            <p className="mt-3 max-w-2xl text-[15px] font-medium leading-7 text-slate-600 dark:text-neutral-300">
+              {t.learnIntro}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        {points.map((point) => (
+          <div
+            key={point}
+            className="flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-neutral-800 dark:bg-neutral-950"
+          >
+            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-300" />
+            <p className="text-sm font-medium leading-6 text-slate-600 dark:text-neutral-300">{point}</p>
+          </div>
+        ))}
       </section>
     </div>
   );
