@@ -7,10 +7,10 @@ const appIconPath = path.join(__dirname, "../../icons/android/res/mipmap-hdpi/ic
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1180,
-    height: 780,
-    minWidth: 920,
-    minHeight: 640,
+    width: 1280,
+    height: 820,
+    minWidth: 1080,
+    minHeight: 720,
     title: "DeviceHub",
     backgroundColor: "#f8fafc",
     frame: false,
