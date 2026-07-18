@@ -72,6 +72,7 @@ const dictionaries = {
     status: "Status",
     officialUrl: "URL resmi",
     category: "Kategori",
+    supports: "Untuk",
     back: "Kembali",
     deviceQuestion: "Perangkat apa yang hilang?",
     chooseBrand: "Pilih merek perangkat",
@@ -137,6 +138,7 @@ const dictionaries = {
     status: "Status",
     officialUrl: "Official URL",
     category: "Category",
+    supports: "For",
     back: "Back",
     deviceQuestion: "Which device is missing?",
     chooseBrand: "Choose the device brand",
@@ -202,6 +204,7 @@ const dictionaries = {
     status: "状态",
     officialUrl: "官方 URL",
     category: "类别",
+    supports: "适用于",
     back: "返回",
     deviceQuestion: "丢失的是哪种设备？",
     chooseBrand: "选择设备品牌",
@@ -352,7 +355,7 @@ export default function App() {
     return vendors.filter((vendor) => {
       const meta = getVendorPresentation(vendor, language);
 
-      return [vendor.name, vendor.category, meta.service, meta.summary, vendor.officialUrl]
+      return [vendor.name, vendor.category, meta.service, meta.summary, meta.supports, vendor.officialUrl]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
@@ -681,6 +684,11 @@ function VendorCard({ t, language, vendor, onOpenDetail, onOpenVendor }) {
           <span className="mt-2 block max-w-[220px] text-[14px] font-medium leading-6 text-slate-500 dark:text-neutral-400">
             {meta.summary}
           </span>
+          {meta.supports && (
+            <span className="mt-3 inline-flex max-w-full rounded-full bg-slate-100 px-2.5 py-1 text-[12px] font-bold text-slate-600 dark:bg-neutral-900 dark:text-neutral-300">
+              <span className="truncate">{t.supports}: {meta.supports}</span>
+            </span>
+          )}
         </span>
       </button>
       <button
@@ -729,6 +737,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "en-US": "Find, lock, or erase Android devices.",
         "zh-CN": "查找、锁定或清除 Android 设备。"
       },
+      supports: {
+        "id-ID": "Android",
+        "en-US": "Android",
+        "zh-CN": "Android"
+      },
       mark: "G",
       logoClass: "bg-white text-blue-600",
       logoUrl: googleLogo,
@@ -744,6 +757,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "id-ID": "Temukan perangkat Galaxy Anda.",
         "en-US": "Find your Galaxy device.",
         "zh-CN": "查找你的 Galaxy 设备。"
+      },
+      supports: {
+        "id-ID": "Galaxy",
+        "en-US": "Galaxy",
+        "zh-CN": "Galaxy"
       },
       mark: "S",
       logoClass: "bg-blue-50 text-blue-600 dark:bg-blue-950",
@@ -761,6 +779,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "en-US": "Find, lock, or erase Xiaomi devices.",
         "zh-CN": "查找、锁定或清除小米设备。"
       },
+      supports: {
+        "id-ID": "Xiaomi, Redmi, POCO",
+        "en-US": "Xiaomi, Redmi, POCO",
+        "zh-CN": "Xiaomi、Redmi、POCO"
+      },
       mark: "mi",
       logoClass: "bg-orange-500 text-white text-[19px]",
       logoUrl: xiaomiLogo,
@@ -777,6 +800,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "en-US": "Find your Huawei device.",
         "zh-CN": "查找你的华为设备。"
       },
+      supports: {
+        "id-ID": "Huawei",
+        "en-US": "Huawei",
+        "zh-CN": "Huawei"
+      },
       mark: "H",
       logoClass: "bg-red-50 text-red-600 dark:bg-red-950",
       logoUrl: huaweiLogo,
@@ -792,6 +820,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "id-ID": "Temukan perangkat OPPO Anda.",
         "en-US": "Find your OPPO device.",
         "zh-CN": "查找你的 OPPO 设备。"
+      },
+      supports: {
+        "id-ID": "OPPO, OnePlus, realme",
+        "en-US": "OPPO, OnePlus, realme",
+        "zh-CN": "OPPO、OnePlus、realme"
       },
       mark: "oppo",
       logoClass: "text-emerald-600",
@@ -810,6 +843,11 @@ function getVendorPresentation(vendor, language = "id-ID") {
         "en-US": "Find iPhone, iPad, Mac, and other Apple devices.",
         "zh-CN": "查找 iPhone、iPad、Mac 和其他 Apple 设备。"
       },
+      supports: {
+        "id-ID": "iPhone, iPad, Mac",
+        "en-US": "iPhone, iPad, Mac",
+        "zh-CN": "iPhone、iPad、Mac"
+      },
       mark: "●",
       logoClass: "bg-white text-black dark:bg-neutral-950 dark:text-white",
       logoUrl: appleLogo,
@@ -821,6 +859,7 @@ function getVendorPresentation(vendor, language = "id-ID") {
   const meta = summaries[vendor.id] ?? {
     service: vendor.name,
     summary: vendor.description,
+    supports: "",
     mark: vendor.name.slice(0, 1),
     logoClass: "bg-slate-100 text-slate-700 dark:bg-neutral-900 dark:text-neutral-200",
     id: vendor.id
@@ -829,7 +868,8 @@ function getVendorPresentation(vendor, language = "id-ID") {
   return {
     ...meta,
     service: typeof meta.service === "string" ? meta.service : meta.service[language] ?? meta.service["id-ID"],
-    summary: typeof meta.summary === "string" ? meta.summary : meta.summary[language] ?? meta.summary["id-ID"]
+    summary: typeof meta.summary === "string" ? meta.summary : meta.summary[language] ?? meta.summary["id-ID"],
+    supports: typeof meta.supports === "string" ? meta.supports : meta.supports?.[language] ?? meta.supports?.["id-ID"] ?? ""
   };
 }
 
@@ -925,6 +965,7 @@ function VendorDetailPage({ t, language, vendor, onBack, onOpenVendor }) {
         <p className="mt-5 leading-7 text-slate-600 dark:text-neutral-300">{meta.summary}</p>
         <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
           <DetailTerm label={t.loginMode} value={t.externalLogin} />
+          {meta.supports && <DetailTerm label={t.supports} value={meta.supports} />}
           <DetailTerm label={t.verifiedAt} value={vendor.lastVerified} />
           <DetailTerm label={t.status} value={vendor.status === "active" ? t.active : t.needsReview} />
           <DetailTerm label={t.officialUrl} value={vendor.officialUrl} />
