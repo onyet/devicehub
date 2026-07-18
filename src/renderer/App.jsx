@@ -630,11 +630,13 @@ function HomePage({
 
   return (
     <div className="space-y-9">
-      <section className="max-w-4xl">
-        <h1 className="text-[34px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50 sm:text-[38px]">
-          {t.headline}
-        </h1>
-        <p className="mt-3 text-base font-medium text-slate-500 dark:text-neutral-400">{t.supporting}</p>
+      <section>
+        <div className="max-w-4xl">
+          <h1 className="text-[34px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50 sm:text-[38px]">
+            {t.headline}
+          </h1>
+          <p className="mt-3 text-base font-medium text-slate-500 dark:text-neutral-400">{t.supporting}</p>
+        </div>
         <label className="mt-7 flex h-[58px] w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] focus-within:border-emerald-500 dark:border-neutral-800 dark:bg-neutral-950">
           <Search size={22} className="shrink-0 text-slate-900 dark:text-neutral-100" strokeWidth={2} />
           <input
