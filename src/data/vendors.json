@@ -75,7 +75,7 @@
     "id": "haveibeenpwned",
     "name": "Have I Been Pwned",
     "category": "privacy",
-    "description": "Layanan self-check resmi untuk mengecek apakah alamat email pernah muncul dalam data breach.",
+    "description": "Layanan self-check resmi untuk mengecek apakah alamat email pernah tersebar di internet.",
     "logo": "",
     "officialUrl": "https://haveibeenpwned.com",
     "loginMode": "external_only",

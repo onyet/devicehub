@@ -82,9 +82,9 @@ const dictionaries = {
     checklistTitle: "Recovery Checklist",
     checklistSubtitle: "Checklist tersimpan di perangkat ini saja.",
     privacyCheckTitle: "Privacy Check",
-    privacyCheckCopy: "Cek apakah email Anda pernah bocor di data breach.",
+    privacyCheckCopy: "Cek apakah email Anda pernah tersebar di internet.",
     privacyCheckNote:
-      "Layanan ini mengecek berdasarkan alamat email, bukan nomor telepon langsung. Sebagian breach mungkin tetap menyertakan data nomor telepon.",
+      "Layanan ini mengecek berdasarkan alamat email, bukan nomor telepon langsung. Beberapa kebocoran data mungkin tetap menyertakan nomor telepon.",
     selfCheckCopy:
       "DeviceHub hanya menautkan ke layanan resmi untuk self-check. Tidak ada input yang dikirim ke server DeviceHub.",
     theme: "Tema",
@@ -154,9 +154,9 @@ const dictionaries = {
     checklistTitle: "Recovery Checklist",
     checklistSubtitle: "This checklist is stored only on this device.",
     privacyCheckTitle: "Privacy Check",
-    privacyCheckCopy: "Check whether your email has appeared in a data breach.",
+    privacyCheckCopy: "Check whether your email has been exposed online.",
     privacyCheckNote:
-      "This service checks email addresses, not phone numbers directly. Some breaches may still include phone number data.",
+      "This service checks email addresses, not phone numbers directly. Some leaked records may still include phone number data.",
     selfCheckCopy:
       "DeviceHub only links to official self-check services. No input is sent to a DeviceHub server.",
     theme: "Theme",
@@ -226,8 +226,8 @@ const dictionaries = {
     checklistTitle: "恢复清单",
     checklistSubtitle: "此清单只保存在当前设备。",
     privacyCheckTitle: "隐私检查",
-    privacyCheckCopy: "检查你的邮箱是否出现在数据泄露中。",
-    privacyCheckNote: "此服务基于邮箱地址检查，不直接检查电话号码。有些泄露数据仍可能包含电话号码。",
+    privacyCheckCopy: "检查你的邮箱是否曾在网上泄露。",
+    privacyCheckNote: "此服务基于邮箱地址检查，不直接检查电话号码。有些泄露记录仍可能包含电话号码。",
     selfCheckCopy: "DeviceHub 只链接到官方自助检查服务。不会向 DeviceHub 服务器发送任何输入。",
     theme: "主题",
     language: "语言",
@@ -914,14 +914,14 @@ function getVendorPresentation(vendor, language = "id-ID") {
     },
     haveibeenpwned: {
       service: {
-        "id-ID": "Email breach self-check",
-        "en-US": "Email breach self-check",
-        "zh-CN": "邮箱泄露自助检查"
+        "id-ID": "Cek keamanan email",
+        "en-US": "Email safety check",
+        "zh-CN": "邮箱安全检查"
       },
       summary: {
-        "id-ID": "Cek apakah alamat email pernah muncul dalam data breach.",
-        "en-US": "Check whether an email address has appeared in a data breach.",
-        "zh-CN": "检查邮箱地址是否出现在数据泄露中。"
+        "id-ID": "Cek apakah alamat email pernah tersebar di internet.",
+        "en-US": "Check whether an email address has been exposed online.",
+        "zh-CN": "检查邮箱地址是否曾在网上泄露。"
       },
       supports: {
         "id-ID": "Alamat email",
