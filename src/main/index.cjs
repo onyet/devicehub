@@ -1,8 +1,9 @@
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, nativeImage, shell } = require("electron");
 const path = require("node:path");
 const { getVendors } = require("./vendors.cjs");
 
 const isDev = !app.isPackaged;
+const appIconPath = path.join(__dirname, "../../icons/android/play_store_512.png");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -13,7 +14,7 @@ function createWindow() {
     title: "DeviceHub",
     backgroundColor: "#f8fafc",
     frame: false,
-    icon: path.join(__dirname, "../../icons/android/play_store_512.png"),
+    icon: appIconPath,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.cjs"),
       contextIsolation: true,
@@ -30,6 +31,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  app.setName("DeviceHub");
+
+  if (process.platform === "darwin" && app.dock) {
+    app.dock.setIcon(nativeImage.createFromPath(appIconPath));
+  }
+
   ipcMain.handle("vendors:get", getVendors);
 
   ipcMain.handle("window:minimize", (event) => {

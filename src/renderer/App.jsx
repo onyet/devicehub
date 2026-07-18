@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   ClipboardCheck,
   ExternalLink,
-  Heart,
   History,
   Home,
   Info,
@@ -61,11 +60,9 @@ const dictionaries = {
     quickActions: "Aksi Cepat",
     openPortal: "Buka Portal",
     viewDetails: "Detail",
-    favorites: "Favorit",
     checklist: "Checklist",
     history: "Riwayat",
     recent: "Terakhir Dibuka",
-    emptyFavorites: "Belum ada favorit.",
     emptyRecent: "Riwayat masih kosong.",
     active: "Aktif",
     needsReview: "Perlu review",
@@ -87,7 +84,6 @@ const dictionaries = {
     language: "Bahasa",
     localData: "Data lokal",
     clearHistory: "Hapus riwayat",
-    clearFavorites: "Hapus favorit",
     light: "Terang",
     dark: "Gelap",
     privacyTitle: "Privasi",
@@ -109,10 +105,8 @@ const dictionaries = {
       "DeviceHub hanya membantu membuka portal resmi vendor. Proses login, verifikasi, pelacakan, penguncian, dan penghapusan data tetap dilakukan di situs vendor.",
     learnPointOfficial: "Link vendor dicek dari sumber resmi dan dibuka sebagai halaman HTTPS.",
     learnPointExternal: "Portal dibuka di browser eksternal agar alur login vendor tetap normal.",
-    learnPointLocal: "Favorit, riwayat, dan checklist tersimpan lokal di perangkat ini.",
-    learnPointNoAccount: "DeviceHub tidak meminta akun baru, password, OTP, atau akses lokasi.",
-    addFavorite: "Tambah favorit",
-    removeFavorite: "Hapus favorit"
+    learnPointLocal: "Riwayat dan checklist tersimpan lokal di perangkat ini.",
+    learnPointNoAccount: "DeviceHub tidak meminta akun baru, password, OTP, atau akses lokasi."
   },
   "en-US": {
     appSubtitle: "Official portal directory",
@@ -131,11 +125,9 @@ const dictionaries = {
     quickActions: "Quick Actions",
     openPortal: "Open Portal",
     viewDetails: "Details",
-    favorites: "Favorites",
     checklist: "Checklist",
     history: "History",
     recent: "Recently Opened",
-    emptyFavorites: "No favorites yet.",
     emptyRecent: "No recent portals yet.",
     active: "Active",
     needsReview: "Needs review",
@@ -157,7 +149,6 @@ const dictionaries = {
     language: "Language",
     localData: "Local data",
     clearHistory: "Clear history",
-    clearFavorites: "Clear favorites",
     light: "Light",
     dark: "Dark",
     privacyTitle: "Privacy",
@@ -179,10 +170,8 @@ const dictionaries = {
       "DeviceHub only helps open official vendor portals. Login, verification, tracking, locking, and remote wipe remain inside the vendor website.",
     learnPointOfficial: "Vendor links are checked against official HTTPS destinations.",
     learnPointExternal: "Portals open in the external browser so vendor login flows work normally.",
-    learnPointLocal: "Favorites, history, and checklist progress stay local on this device.",
-    learnPointNoAccount: "DeviceHub does not ask for a new account, password, OTP, or location access.",
-    addFavorite: "Add favorite",
-    removeFavorite: "Remove favorite"
+    learnPointLocal: "History and checklist progress stay local on this device.",
+    learnPointNoAccount: "DeviceHub does not ask for a new account, password, OTP, or location access."
   },
   "zh-CN": {
     appSubtitle: "官方门户目录",
@@ -201,11 +190,9 @@ const dictionaries = {
     quickActions: "快捷操作",
     openPortal: "打开门户",
     viewDetails: "详情",
-    favorites: "收藏",
     checklist: "清单",
     history: "历史",
     recent: "最近打开",
-    emptyFavorites: "暂无收藏。",
     emptyRecent: "暂无历史记录。",
     active: "可用",
     needsReview: "需复核",
@@ -227,7 +214,6 @@ const dictionaries = {
     language: "语言",
     localData: "本地数据",
     clearHistory: "清除历史",
-    clearFavorites: "清除收藏",
     light: "浅色",
     dark: "深色",
     privacyTitle: "隐私",
@@ -246,10 +232,8 @@ const dictionaries = {
     learnIntro: "DeviceHub 只帮助打开厂商官方门户。登录、验证、定位、锁定和远程清除仍在厂商网站内完成。",
     learnPointOfficial: "厂商链接会按官方 HTTPS 地址进行检查。",
     learnPointExternal: "门户默认在外部浏览器打开，以保持厂商登录流程正常。",
-    learnPointLocal: "收藏、历史记录和清单进度只保存在本设备。",
-    learnPointNoAccount: "DeviceHub 不要求新账号、密码、OTP 或位置权限。",
-    addFavorite: "添加收藏",
-    removeFavorite: "取消收藏"
+    learnPointLocal: "历史记录和清单进度只保存在本设备。",
+    learnPointNoAccount: "DeviceHub 不要求新账号、密码、OTP 或位置权限。"
   }
 };
 
@@ -346,7 +330,6 @@ export default function App() {
   const [route, setRoute] = useState("home");
   const [selectedVendorId, setSelectedVendorId] = useState(null);
   const [query, setQuery] = useState("");
-  const [favorites, setFavorites] = useLocalStorage("devicehub:favorites", []);
   const [history, setHistory] = useLocalStorage("devicehub:history", []);
   const [checkedItems, setCheckedItems] = useLocalStorage("devicehub:checklist", []);
   const [theme, setTheme] = useLocalStorage("devicehub:theme", "light");
@@ -367,24 +350,20 @@ export default function App() {
     if (!normalizedQuery) return vendors;
 
     return vendors.filter((vendor) => {
-      return [vendor.name, vendor.category, vendor.description, vendor.officialUrl]
+      const meta = getVendorPresentation(vendor, language);
+
+      return [vendor.name, vendor.category, meta.service, meta.summary, vendor.officialUrl]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
     });
-  }, [query, vendors]);
+  }, [language, query, vendors]);
 
   const selectedVendor = vendors.find((vendor) => vendor.id === selectedVendorId);
 
   async function openVendor(vendor) {
     await api.openExternal(vendor.officialUrl);
     setHistory((items) => [vendor.id, ...items.filter((item) => item !== vendor.id)].slice(0, 6));
-  }
-
-  function toggleFavorite(vendorId) {
-    setFavorites((items) =>
-      items.includes(vendorId) ? items.filter((item) => item !== vendorId) : [...items, vendorId]
-    );
   }
 
   function openVendorDetail(vendorId) {
@@ -447,17 +426,13 @@ export default function App() {
             {route === "home" && (
               <HomePage
                 t={t}
-                vendors={vendors}
                 filteredVendors={filteredVendors}
                 query={query}
                 setQuery={setQuery}
-                favorites={favorites}
-                history={history}
-                onStartWizard={() => setRoute("wizard")}
                 onLearnMore={() => setRoute("learn")}
                 onOpenDetail={openVendorDetail}
                 onOpenVendor={openVendor}
-                onToggleFavorite={toggleFavorite}
+                language={language}
               />
             )}
             {route === "wizard" && (
@@ -466,11 +441,10 @@ export default function App() {
             {route === "vendor" && selectedVendor && (
               <VendorDetailPage
                 t={t}
+                language={language}
                 vendor={selectedVendor}
-                isFavorite={favorites.includes(selectedVendor.id)}
                 onBack={() => setRoute("home")}
                 onOpenVendor={openVendor}
-                onToggleFavorite={toggleFavorite}
               />
             )}
             {route === "emergency" && (
@@ -486,6 +460,7 @@ export default function App() {
               <CollectionPage
                 title={t.history}
                 empty={t.emptyRecent}
+                language={language}
                 vendors={history.map((id) => vendors.find((vendor) => vendor.id === id)).filter(Boolean)}
                 onOpenDetail={openVendorDetail}
                 onOpenVendor={openVendor}
@@ -499,7 +474,6 @@ export default function App() {
                 language={language}
                 setLanguage={setLanguage}
                 onClearHistory={() => setHistory([])}
-                onClearFavorites={() => setFavorites([])}
               />
             )}
             {route === "about" && <AboutPage t={t} />}
@@ -617,6 +591,7 @@ function LanguageSwitch({ language, setLanguage }) {
 
 function HomePage({
   t,
+  language,
   filteredVendors,
   query,
   setQuery,
@@ -648,7 +623,7 @@ function HomePage({
       {androidVendors.length > 0 && (
         <VendorSection title={t.android}>
           {androidVendors.map((vendor) => (
-            <VendorCard key={vendor.id} t={t} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+            <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
           ))}
         </VendorSection>
       )}
@@ -656,7 +631,7 @@ function HomePage({
       {appleVendors.length > 0 && (
         <VendorSection title="Apple">
           {appleVendors.map((vendor) => (
-            <VendorCard key={vendor.id} t={t} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+            <VendorCard key={vendor.id} t={t} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
           ))}
         </VendorSection>
       )}
@@ -693,8 +668,8 @@ function VendorSection({ title, children }) {
   );
 }
 
-function VendorCard({ t, vendor, onOpenDetail, onOpenVendor }) {
-  const meta = getVendorPresentation(vendor);
+function VendorCard({ t, language, vendor, onOpenDetail, onOpenVendor }) {
+  const meta = getVendorPresentation(vendor, language);
 
   return (
     <article className="group relative flex min-h-[140px] rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:border-slate-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700">
@@ -741,43 +716,83 @@ function VendorLogo({ meta }) {
   );
 }
 
-function getVendorPresentation(vendor) {
+function getVendorPresentation(vendor, language = "id-ID") {
   const summaries = {
     google: {
-      service: "Find My Device",
-      summary: "Temukan, kunci, atau hapus perangkat Android.",
+      service: {
+        "id-ID": "Find My Device",
+        "en-US": "Find My Device",
+        "zh-CN": "查找我的设备"
+      },
+      summary: {
+        "id-ID": "Temukan, kunci, atau hapus perangkat Android.",
+        "en-US": "Find, lock, or erase Android devices.",
+        "zh-CN": "查找、锁定或清除 Android 设备。"
+      },
       mark: "G",
       logoClass: "bg-white text-blue-600",
       logoUrl: googleLogo,
       id: "google"
     },
     samsung: {
-      service: "SmartThings Find",
-      summary: "Temukan perangkat Galaxy Anda.",
+      service: {
+        "id-ID": "SmartThings Find",
+        "en-US": "SmartThings Find",
+        "zh-CN": "SmartThings Find"
+      },
+      summary: {
+        "id-ID": "Temukan perangkat Galaxy Anda.",
+        "en-US": "Find your Galaxy device.",
+        "zh-CN": "查找你的 Galaxy 设备。"
+      },
       mark: "S",
       logoClass: "bg-blue-50 text-blue-600 dark:bg-blue-950",
       logoUrl: samsungLogo,
       id: "samsung"
     },
     xiaomi: {
-      service: "Xiaomi Cloud",
-      summary: "Temukan, kunci, atau hapus perangkat Xiaomi.",
+      service: {
+        "id-ID": "Xiaomi Cloud",
+        "en-US": "Xiaomi Cloud",
+        "zh-CN": "小米云服务"
+      },
+      summary: {
+        "id-ID": "Temukan, kunci, atau hapus perangkat Xiaomi.",
+        "en-US": "Find, lock, or erase Xiaomi devices.",
+        "zh-CN": "查找、锁定或清除小米设备。"
+      },
       mark: "mi",
       logoClass: "bg-orange-500 text-white text-[19px]",
       logoUrl: xiaomiLogo,
       id: "xiaomi"
     },
     huawei: {
-      service: "Huawei Cloud",
-      summary: "Temukan perangkat Huawei Anda.",
+      service: {
+        "id-ID": "Huawei Cloud",
+        "en-US": "Huawei Cloud",
+        "zh-CN": "华为云空间"
+      },
+      summary: {
+        "id-ID": "Temukan perangkat Huawei Anda.",
+        "en-US": "Find your Huawei device.",
+        "zh-CN": "查找你的华为设备。"
+      },
       mark: "H",
       logoClass: "bg-red-50 text-red-600 dark:bg-red-950",
       logoUrl: huaweiLogo,
       id: "huawei"
     },
     oppo: {
-      service: "OPPO Cloud",
-      summary: "Temukan perangkat OPPO Anda.",
+      service: {
+        "id-ID": "OPPO Cloud",
+        "en-US": "OPPO Cloud",
+        "zh-CN": "OPPO 云服务"
+      },
+      summary: {
+        "id-ID": "Temukan perangkat OPPO Anda.",
+        "en-US": "Find your OPPO device.",
+        "zh-CN": "查找你的 OPPO 设备。"
+      },
       mark: "oppo",
       logoClass: "text-emerald-600",
       logoUrl: oppoLogo,
@@ -785,8 +800,16 @@ function getVendorPresentation(vendor) {
       id: "oppo"
     },
     apple: {
-      service: "Find My",
-      summary: "Temukan perangkat iPhone, iPad, Mac, dan lainnya.",
+      service: {
+        "id-ID": "Find My",
+        "en-US": "Find My",
+        "zh-CN": "查找"
+      },
+      summary: {
+        "id-ID": "Temukan perangkat iPhone, iPad, Mac, dan lainnya.",
+        "en-US": "Find iPhone, iPad, Mac, and other Apple devices.",
+        "zh-CN": "查找 iPhone、iPad、Mac 和其他 Apple 设备。"
+      },
       mark: "●",
       logoClass: "bg-white text-black dark:bg-neutral-950 dark:text-white",
       logoUrl: appleLogo,
@@ -795,16 +818,22 @@ function getVendorPresentation(vendor) {
     }
   };
 
-  return summaries[vendor.id] ?? {
+  const meta = summaries[vendor.id] ?? {
     service: vendor.name,
     summary: vendor.description,
     mark: vendor.name.slice(0, 1),
     logoClass: "bg-slate-100 text-slate-700 dark:bg-neutral-900 dark:text-neutral-200",
     id: vendor.id
   };
+
+  return {
+    ...meta,
+    service: typeof meta.service === "string" ? meta.service : meta.service[language] ?? meta.service["id-ID"],
+    summary: typeof meta.summary === "string" ? meta.summary : meta.summary[language] ?? meta.summary["id-ID"]
+  };
 }
 
-function CollectionPage({ title, empty, vendors, onOpenDetail, onOpenVendor }) {
+function CollectionPage({ title, empty, language, vendors, onOpenDetail, onOpenVendor }) {
   return (
     <div className="space-y-6">
       <h1 className="text-[34px] font-extrabold leading-tight tracking-normal text-slate-950 dark:text-neutral-50">{title}</h1>
@@ -813,7 +842,7 @@ function CollectionPage({ title, empty, vendors, onOpenDetail, onOpenVendor }) {
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {vendors.map((vendor) => (
-            <VendorCard key={vendor.id} t={{ openPortal: title }} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
+            <VendorCard key={vendor.id} t={{ openPortal: title }} language={language} vendor={vendor} onOpenDetail={onOpenDetail} onOpenVendor={onOpenVendor} />
           ))}
         </div>
       )}
@@ -878,26 +907,22 @@ function WizardPage({ t, vendors, onBack, onOpenVendor }) {
   );
 }
 
-function VendorDetailPage({ t, vendor, isFavorite, onBack, onOpenVendor, onToggleFavorite }) {
+function VendorDetailPage({ t, language, vendor, onBack, onOpenVendor }) {
+  const meta = getVendorPresentation(vendor, language);
+
   return (
     <div className="max-w-4xl space-y-5">
       <BackButton label={t.back} onBack={onBack} />
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-          <div>
+        <div className="flex items-start gap-5">
+          <VendorLogo meta={meta} />
+          <div className="min-w-0">
             <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{vendor.category}</p>
             <h1 className="mt-1 text-3xl font-semibold">{vendor.name}</h1>
+            <p className="mt-1 text-sm font-semibold text-slate-600 dark:text-neutral-300">{meta.service}</p>
           </div>
-          <button
-            type="button"
-            title={isFavorite ? t.removeFavorite : t.addFavorite}
-            onClick={() => onToggleFavorite(vendor.id)}
-            className="grid size-10 place-items-center rounded-md border border-slate-200 hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
-          </button>
         </div>
-        <p className="mt-5 leading-7 text-slate-600 dark:text-neutral-300">{vendor.description}</p>
+        <p className="mt-5 leading-7 text-slate-600 dark:text-neutral-300">{meta.summary}</p>
         <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
           <DetailTerm label={t.loginMode} value={t.externalLogin} />
           <DetailTerm label={t.verifiedAt} value={vendor.lastVerified} />
@@ -949,7 +974,7 @@ function EmergencyPage({ t, checklistItems, language, checkedItems, setCheckedIt
   );
 }
 
-function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory, onClearFavorites }) {
+function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory }) {
   return (
     <div className="max-w-4xl space-y-5">
       <h1 className="text-3xl font-semibold">{t.settings}</h1>
@@ -982,9 +1007,6 @@ function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistor
         <div className="flex flex-wrap gap-3">
           <button type="button" onClick={onClearHistory} className="h-10 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
             {t.clearHistory}
-          </button>
-          <button type="button" onClick={onClearFavorites} className="h-10 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
-            {t.clearFavorites}
           </button>
         </div>
       </SettingBlock>
