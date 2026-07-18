@@ -8,6 +8,7 @@
 - UI awal tersedia untuk Home, Wizard, Vendor Detail, Emergency Center, Settings, dan About.
 - Portal vendor dibuka via browser eksternal sebagai default aman.
 - Link checker awal berjalan; Huawei saat ini mengembalikan 502 dan ditandai perlu review.
+- Redesign dashboard profesional dan dukungan multi bahasa awal tersedia untuk Indonesia, English US, dan Chinese.
 
 ## Prinsip Produk
 
@@ -40,7 +41,7 @@ DeviceHub adalah direktori tidak resmi menuju portal pemulihan resmi vendor. Apl
 ## Milestone 3 — Lokal Indonesia
 
 - Tambahkan konten operator seluler Indonesia untuk blokir SIM.
-- Tambahkan bahasa Inggris dan Indonesia dengan sistem i18n ringan.
+- Lengkapi dan review copy multi bahasa untuk Indonesia, English US, dan Chinese.
 - Tambahkan deteksi locale tanpa GPS untuk memilih konten regional.
 - Review ketersediaan OPPO/OnePlus/realme untuk region target.
 

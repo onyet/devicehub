@@ -2,15 +2,20 @@ import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
+  ChevronRight,
   ExternalLink,
+  Globe2,
   Heart,
+  History,
   Home,
   Info,
+  Languages,
   Moon,
   Search,
   Settings,
   ShieldCheck,
-  Sparkles
+  Sun,
+  Wrench
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import fallbackVendors from "../data/vendors.json";
@@ -20,22 +25,261 @@ const api = window.devicehub ?? {
   openExternal: async (url) => window.open(url, "_blank", "noopener,noreferrer")
 };
 
-const navItems = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "emergency", label: "Darurat", icon: ShieldCheck },
-  { id: "settings", label: "Settings", icon: Settings },
-  { id: "about", label: "Tentang", icon: Info }
+const languages = [
+  { id: "id-ID", short: "ID", label: "Indonesia" },
+  { id: "en-US", short: "EN", label: "English US" },
+  { id: "zh-CN", short: "中", label: "中文" }
 ];
 
+const dictionaries = {
+  "id-ID": {
+    appSubtitle: "Direktori portal resmi",
+    unofficial: "Direktori tidak resmi. Bukan afiliasi vendor.",
+    home: "Beranda",
+    emergency: "Darurat",
+    settings: "Pengaturan",
+    about: "Tentang",
+    recoveryWizard: "Wizard Pemulihan",
+    startWizard: "Mulai Wizard",
+    headline: "Akses portal resmi pemulihan perangkat, tanpa mencari ulang saat panik.",
+    supporting:
+      "DeviceHub membantu membuka portal vendor yang benar, menyimpan checklist lokal, dan menjaga proses tetap sederhana.",
+    searchVendor: "Cari vendor",
+    searchPlaceholder: "Cari Google, Apple, Samsung...",
+    vendorDirectory: "Direktori Vendor",
+    quickActions: "Aksi Cepat",
+    openPortal: "Buka Portal",
+    viewDetails: "Detail",
+    favorites: "Favorit",
+    recent: "Terakhir Dibuka",
+    emptyFavorites: "Belum ada favorit.",
+    emptyRecent: "Riwayat masih kosong.",
+    active: "Aktif",
+    needsReview: "Perlu review",
+    externalLogin: "Browser eksternal",
+    verifiedAt: "Diverifikasi",
+    loginMode: "Mode login",
+    status: "Status",
+    officialUrl: "URL resmi",
+    category: "Kategori",
+    back: "Kembali",
+    deviceQuestion: "Perangkat apa yang hilang?",
+    chooseBrand: "Pilih merek perangkat",
+    android: "Android",
+    appleDevice: "iPhone/iPad",
+    unsure: "Tidak yakin",
+    checklistTitle: "Recovery Checklist",
+    checklistSubtitle: "Checklist tersimpan di perangkat ini saja.",
+    theme: "Tema",
+    language: "Bahasa",
+    localData: "Data lokal",
+    clearHistory: "Hapus riwayat",
+    clearFavorites: "Hapus favorit",
+    light: "Terang",
+    dark: "Gelap",
+    privacyTitle: "Privasi",
+    privacyCopy: "DeviceHub tidak meminta akun, tidak membaca lokasi, dan tidak menyimpan kredensial.",
+    aboutCopy:
+      "DeviceHub adalah direktori tidak resmi menuju portal pemulihan resmi vendor. Semua nama dan merek dagang adalah milik pemegangnya masing-masing.",
+    aboutSafety:
+      "Portal dibuka melalui browser eksternal secara default untuk menghindari masalah login OAuth di embedded browser.",
+    linkHealth: "Kesehatan Link",
+    huaweiReview: "Huawei sedang ditandai perlu review karena pemeriksaan otomatis terakhir menerima 502.",
+    secureDefaults: "Default Aman",
+    localOnly: "Data Lokal",
+    noTracking: "Tanpa Pelacakan",
+    addFavorite: "Tambah favorit",
+    removeFavorite: "Hapus favorit"
+  },
+  "en-US": {
+    appSubtitle: "Official portal directory",
+    unofficial: "Unofficial directory. Not affiliated with vendors.",
+    home: "Home",
+    emergency: "Emergency",
+    settings: "Settings",
+    about: "About",
+    recoveryWizard: "Recovery Wizard",
+    startWizard: "Start Wizard",
+    headline: "Open the right official recovery portal without searching under pressure.",
+    supporting:
+      "DeviceHub helps you launch trusted vendor portals, keep a local checklist, and stay focused during recovery.",
+    searchVendor: "Search vendor",
+    searchPlaceholder: "Search Google, Apple, Samsung...",
+    vendorDirectory: "Vendor Directory",
+    quickActions: "Quick Actions",
+    openPortal: "Open Portal",
+    viewDetails: "Details",
+    favorites: "Favorites",
+    recent: "Recently Opened",
+    emptyFavorites: "No favorites yet.",
+    emptyRecent: "No recent portals yet.",
+    active: "Active",
+    needsReview: "Needs review",
+    externalLogin: "External browser",
+    verifiedAt: "Verified",
+    loginMode: "Login mode",
+    status: "Status",
+    officialUrl: "Official URL",
+    category: "Category",
+    back: "Back",
+    deviceQuestion: "Which device is missing?",
+    chooseBrand: "Choose the device brand",
+    android: "Android",
+    appleDevice: "iPhone/iPad",
+    unsure: "Not sure",
+    checklistTitle: "Recovery Checklist",
+    checklistSubtitle: "This checklist is stored only on this device.",
+    theme: "Theme",
+    language: "Language",
+    localData: "Local data",
+    clearHistory: "Clear history",
+    clearFavorites: "Clear favorites",
+    light: "Light",
+    dark: "Dark",
+    privacyTitle: "Privacy",
+    privacyCopy: "DeviceHub does not ask for accounts, read location, or store credentials.",
+    aboutCopy:
+      "DeviceHub is an unofficial directory for official vendor recovery portals. All names and trademarks belong to their respective owners.",
+    aboutSafety:
+      "Portals open in the external browser by default to avoid OAuth login issues in embedded browsers.",
+    linkHealth: "Link Health",
+    huaweiReview: "Huawei is marked for review because the latest automated check received a 502 response.",
+    secureDefaults: "Secure Defaults",
+    localOnly: "Local Data",
+    noTracking: "No Tracking",
+    addFavorite: "Add favorite",
+    removeFavorite: "Remove favorite"
+  },
+  "zh-CN": {
+    appSubtitle: "官方门户目录",
+    unofficial: "非官方目录。与厂商没有隶属关系。",
+    home: "首页",
+    emergency: "紧急",
+    settings: "设置",
+    about: "关于",
+    recoveryWizard: "恢复向导",
+    startWizard: "开始向导",
+    headline: "无需临时搜索，直接打开正确的官方设备恢复门户。",
+    supporting: "DeviceHub 帮助你打开可信厂商门户，保存本地清单，并让恢复步骤更清晰。",
+    searchVendor: "搜索厂商",
+    searchPlaceholder: "搜索 Google、Apple、Samsung...",
+    vendorDirectory: "厂商目录",
+    quickActions: "快捷操作",
+    openPortal: "打开门户",
+    viewDetails: "详情",
+    favorites: "收藏",
+    recent: "最近打开",
+    emptyFavorites: "暂无收藏。",
+    emptyRecent: "暂无历史记录。",
+    active: "可用",
+    needsReview: "需复核",
+    externalLogin: "外部浏览器",
+    verifiedAt: "已验证",
+    loginMode: "登录模式",
+    status: "状态",
+    officialUrl: "官方 URL",
+    category: "类别",
+    back: "返回",
+    deviceQuestion: "丢失的是哪种设备？",
+    chooseBrand: "选择设备品牌",
+    android: "Android",
+    appleDevice: "iPhone/iPad",
+    unsure: "不确定",
+    checklistTitle: "恢复清单",
+    checklistSubtitle: "此清单只保存在当前设备。",
+    theme: "主题",
+    language: "语言",
+    localData: "本地数据",
+    clearHistory: "清除历史",
+    clearFavorites: "清除收藏",
+    light: "浅色",
+    dark: "深色",
+    privacyTitle: "隐私",
+    privacyCopy: "DeviceHub 不要求账号，不读取位置，也不保存凭据。",
+    aboutCopy: "DeviceHub 是通往官方厂商恢复门户的非官方目录。所有名称和商标均归各自所有者。",
+    aboutSafety: "默认使用外部浏览器打开门户，以避免嵌入式浏览器中的 OAuth 登录问题。",
+    linkHealth: "链接状态",
+    huaweiReview: "Huawei 已标记为需复核，因为最近的自动检查收到 502 响应。",
+    secureDefaults: "安全默认",
+    localOnly: "本地数据",
+    noTracking: "无追踪",
+    addFavorite: "添加收藏",
+    removeFavorite: "取消收藏"
+  }
+};
+
 const checklistItems = [
-  "Bunyikan perangkat dari portal resmi",
-  "Kunci perangkat dan tampilkan pesan pemulihan",
-  "Cek lokasi terakhir dari portal vendor",
-  "Hapus data jarak jauh jika perangkat tidak bisa dipulihkan",
-  "Blokir kartu SIM ke operator",
-  "Ganti password akun vendor",
-  "Amankan email utama",
-  "Cek akses perbankan dan e-wallet"
+  {
+    id: "ring",
+    label: {
+      "id-ID": "Bunyikan perangkat dari portal resmi",
+      "en-US": "Ring the device from the official portal",
+      "zh-CN": "从官方门户让设备响铃"
+    }
+  },
+  {
+    id: "lock",
+    label: {
+      "id-ID": "Kunci perangkat dan tampilkan pesan pemulihan",
+      "en-US": "Lock the device and show a recovery message",
+      "zh-CN": "锁定设备并显示恢复信息"
+    }
+  },
+  {
+    id: "location",
+    label: {
+      "id-ID": "Cek lokasi terakhir dari portal vendor",
+      "en-US": "Check the last known location from the vendor portal",
+      "zh-CN": "从厂商门户查看最后位置"
+    }
+  },
+  {
+    id: "wipe",
+    label: {
+      "id-ID": "Hapus data jarak jauh jika perangkat tidak bisa dipulihkan",
+      "en-US": "Remote wipe if the device cannot be recovered",
+      "zh-CN": "无法找回时远程清除数据"
+    }
+  },
+  {
+    id: "sim",
+    label: {
+      "id-ID": "Blokir kartu SIM ke operator",
+      "en-US": "Block the SIM card with the carrier",
+      "zh-CN": "联系运营商停用 SIM 卡"
+    }
+  },
+  {
+    id: "vendor-password",
+    label: {
+      "id-ID": "Ganti password akun vendor",
+      "en-US": "Change the vendor account password",
+      "zh-CN": "更改厂商账号密码"
+    }
+  },
+  {
+    id: "email",
+    label: {
+      "id-ID": "Amankan email utama",
+      "en-US": "Secure the primary email account",
+      "zh-CN": "保护主邮箱账号"
+    }
+  },
+  {
+    id: "finance",
+    label: {
+      "id-ID": "Cek akses perbankan dan e-wallet",
+      "en-US": "Review banking and wallet access",
+      "zh-CN": "检查银行和钱包访问权限"
+    }
+  }
+];
+
+const navItems = [
+  { id: "home", labelKey: "home", icon: Home },
+  { id: "emergency", labelKey: "emergency", icon: ShieldCheck },
+  { id: "settings", labelKey: "settings", icon: Settings },
+  { id: "about", labelKey: "about", icon: Info }
 ];
 
 function useLocalStorage(key, initialValue) {
@@ -60,21 +304,24 @@ export default function App() {
   const [history, setHistory] = useLocalStorage("devicehub:history", []);
   const [checkedItems, setCheckedItems] = useLocalStorage("devicehub:checklist", []);
   const [theme, setTheme] = useLocalStorage("devicehub:theme", "light");
+  const [language, setLanguage] = useLocalStorage("devicehub:language", "id-ID");
 
+  const t = dictionaries[language] ?? dictionaries["id-ID"];
   useEffect(() => {
     api.getVendors().then(setVendors).catch(() => setVendors(fallbackVendors));
   }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-  }, [theme]);
+    document.documentElement.lang = language;
+  }, [theme, language]);
 
   const filteredVendors = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return vendors;
 
     return vendors.filter((vendor) => {
-      return [vendor.name, vendor.category, vendor.description]
+      return [vendor.name, vendor.category, vendor.description, vendor.officialUrl]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
@@ -100,59 +347,55 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950 transition dark:bg-zinc-950 dark:text-zinc-50">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl">
-        <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-4 py-5 dark:border-zinc-800 dark:bg-zinc-950 lg:block">
-          <div className="mb-8 flex items-center gap-3 px-2">
-            <div className="grid size-10 place-items-center rounded bg-emerald-600 text-white">
-              <ShieldCheck size={21} />
-            </div>
-            <div>
-              <p className="text-lg font-semibold">DeviceHub</p>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">Direktori portal resmi</p>
-            </div>
+    <main className="min-h-screen bg-slate-100 text-slate-950 transition dark:bg-neutral-950 dark:text-neutral-50">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1440px]">
+        <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 lg:flex lg:flex-col">
+          <div className="border-b border-slate-200 px-5 py-5 dark:border-neutral-800">
+            <Brand t={t} />
           </div>
-          <nav className="space-y-1">
+          <nav className="flex-1 space-y-1 px-3 py-4">
             {navItems.map((item) => (
-              <button
+              <NavButton
                 key={item.id}
-                type="button"
-                title={item.label}
+                item={item}
+                active={route === item.id}
+                label={t[item.labelKey]}
                 onClick={() => setRoute(item.id)}
-                className={`flex h-11 w-full items-center gap-3 rounded px-3 text-sm font-medium transition ${
-                  route === item.id
-                    ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-950"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                }`}
-              >
-                <item.icon size={18} />
-                {item.label}
-              </button>
+              />
             ))}
           </nav>
+          <div className="border-t border-slate-200 p-4 dark:border-neutral-800">
+            <SecuritySummary t={t} />
+          </div>
         </aside>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/92 px-4 py-3 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/92 lg:hidden">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-semibold">
-                <ShieldCheck size={20} />
-                DeviceHub
+          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95 sm:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="lg:hidden">
+                <Brand t={t} compact />
               </div>
-              <button
-                type="button"
-                title="Ubah tema"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="grid size-10 place-items-center rounded border border-slate-200 dark:border-zinc-800"
-              >
-                <Moon size={18} />
-              </button>
+              <div className="hidden min-w-0 lg:block">
+                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{t.unofficial}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <LanguageSwitch language={language} setLanguage={setLanguage} />
+                <button
+                  type="button"
+                  title={theme === "dark" ? t.light : t.dark}
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="grid size-10 place-items-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                >
+                  {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+                </button>
+              </div>
             </div>
           </header>
 
           <div className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
             {route === "home" && (
               <HomePage
+                t={t}
                 vendors={vendors}
                 filteredVendors={filteredVendors}
                 query={query}
@@ -166,10 +409,11 @@ export default function App() {
               />
             )}
             {route === "wizard" && (
-              <WizardPage vendors={vendors} onBack={() => setRoute("home")} onOpenVendor={openVendor} />
+              <WizardPage t={t} vendors={vendors} onBack={() => setRoute("home")} onOpenVendor={openVendor} />
             )}
             {route === "vendor" && selectedVendor && (
               <VendorDetailPage
+                t={t}
                 vendor={selectedVendor}
                 isFavorite={favorites.includes(selectedVendor.id)}
                 onBack={() => setRoute("home")}
@@ -178,17 +422,26 @@ export default function App() {
               />
             )}
             {route === "emergency" && (
-              <EmergencyPage checkedItems={checkedItems} setCheckedItems={setCheckedItems} />
+              <EmergencyPage
+                t={t}
+                checklistItems={checklistItems}
+                language={language}
+                checkedItems={checkedItems}
+                setCheckedItems={setCheckedItems}
+              />
             )}
             {route === "settings" && (
               <SettingsPage
+                t={t}
                 theme={theme}
                 setTheme={setTheme}
+                language={language}
+                setLanguage={setLanguage}
                 onClearHistory={() => setHistory([])}
                 onClearFavorites={() => setFavorites([])}
               />
             )}
-            {route === "about" && <AboutPage />}
+            {route === "about" && <AboutPage t={t} />}
           </div>
         </section>
       </div>
@@ -196,7 +449,62 @@ export default function App() {
   );
 }
 
+function Brand({ t, compact = false }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`${compact ? "size-9" : "size-11"} grid shrink-0 place-items-center rounded-md bg-slate-950 text-white dark:bg-white dark:text-slate-950`}>
+        <ShieldCheck size={compact ? 19 : 22} />
+      </div>
+      <div className="min-w-0">
+        <p className={`${compact ? "text-base" : "text-lg"} font-semibold leading-tight`}>DeviceHub</p>
+        <p className="truncate text-xs font-medium text-slate-500 dark:text-neutral-400">{t.appSubtitle}</p>
+      </div>
+    </div>
+  );
+}
+
+function NavButton({ item, active, label, onClick }) {
+  return (
+    <button
+      type="button"
+      title={label}
+      onClick={onClick}
+      className={`flex h-11 w-full items-center justify-between rounded-md px-3 text-sm font-medium transition ${
+        active
+          ? "bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950"
+          : "text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-900"
+      }`}
+    >
+      <span className="flex items-center gap-3">
+        <item.icon size={18} />
+        {label}
+      </span>
+      {active && <ChevronRight size={16} />}
+    </button>
+  );
+}
+
+function LanguageSwitch({ language, setLanguage }) {
+  return (
+    <label className="flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+      <Languages size={16} />
+      <select
+        value={language}
+        onChange={(event) => setLanguage(event.target.value)}
+        className="bg-transparent text-sm outline-none"
+      >
+        {languages.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.short}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function HomePage({
+  t,
   vendors,
   filteredVendors,
   query,
@@ -212,217 +520,246 @@ function HomePage({
   const recentVendors = history.map((id) => vendors.find((vendor) => vendor.id === id)).filter(Boolean);
 
   return (
-    <div className="space-y-8">
-      <section className="border-b border-slate-200 pb-7 dark:border-zinc-800">
-        <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-amber-700 dark:text-amber-300">
-          <AlertTriangle size={18} />
-          <span>Direktori tidak resmi. Selalu login hanya di portal vendor resmi.</span>
-        </div>
-        <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl font-semibold tracking-normal sm:text-5xl">DeviceHub</h1>
-            <p className="mt-3 text-lg text-slate-600 dark:text-zinc-300">
-              Satu tempat untuk membuka portal resmi pemulihan perangkat saat waktu terasa sempit.
-            </p>
+    <div className="space-y-6">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 sm:p-7">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+            <AlertTriangle size={17} />
+            {t.unofficial}
           </div>
-          <button
-            type="button"
-            onClick={onStartWizard}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded bg-emerald-600 px-5 text-sm font-semibold text-white hover:bg-emerald-700"
-          >
-            <Sparkles size={18} />
-            Mulai Wizard Pemulihan
-          </button>
+          <h1 className="max-w-4xl text-3xl font-semibold leading-tight tracking-normal sm:text-5xl">{t.headline}</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-neutral-300">{t.supporting}</p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onStartWizard}
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              <Wrench size={17} />
+              {t.startWizard}
+            </button>
+            <a
+              href="#vendors"
+              className="inline-flex h-11 items-center gap-2 rounded-md border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+            >
+              <Globe2 size={17} />
+              {t.vendorDirectory}
+            </a>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <MetricCard label={t.secureDefaults} value="external_only" />
+          <MetricCard label={t.localOnly} value="favorites + checklist" />
+          <MetricCard label={t.noTracking} value="no credentials" />
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-          <h2 className="text-xl font-semibold">Cari Vendor</h2>
-          <label className="flex h-11 w-full items-center gap-2 rounded border border-slate-300 bg-white px-3 md:max-w-sm dark:border-zinc-700 dark:bg-zinc-900">
-            <Search size={18} className="text-slate-400" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cari Google, Apple, Samsung..."
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-            />
-          </label>
+      <section id="vendors" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-4">
+          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+            <div>
+              <h2 className="text-xl font-semibold">{t.vendorDirectory}</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{t.searchVendor}</p>
+            </div>
+            <label className="flex h-11 w-full items-center gap-2 rounded-md border border-slate-300 bg-white px-3 md:max-w-sm dark:border-neutral-700 dark:bg-neutral-900">
+              <Search size={18} className="text-slate-400" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t.searchPlaceholder}
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+              />
+            </label>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+            {filteredVendors.map((vendor) => (
+              <VendorCard
+                key={vendor.id}
+                t={t}
+                vendor={vendor}
+                isFavorite={favorites.includes(vendor.id)}
+                onOpenDetail={onOpenDetail}
+                onOpenVendor={onOpenVendor}
+                onToggleFavorite={onToggleFavorite}
+              />
+            ))}
+          </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filteredVendors.map((vendor) => (
-            <VendorCard
-              key={vendor.id}
-              vendor={vendor}
-              isFavorite={favorites.includes(vendor.id)}
-              onOpenDetail={onOpenDetail}
-              onOpenVendor={onOpenVendor}
-              onToggleFavorite={onToggleFavorite}
-            />
-          ))}
+        <div className="space-y-4">
+          <BookmarkPanel title={t.favorites} vendors={favoriteVendors} empty={t.emptyFavorites} onOpenDetail={onOpenDetail} icon={Heart} />
+          <BookmarkPanel title={t.recent} vendors={recentVendors} empty={t.emptyRecent} onOpenDetail={onOpenDetail} icon={History} />
         </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <BookmarkPanel title="Favorit" vendors={favoriteVendors} empty="Belum ada favorit." onOpenDetail={onOpenDetail} />
-        <BookmarkPanel title="Perangkat Terbaru" vendors={recentVendors} empty="Riwayat masih kosong." onOpenDetail={onOpenDetail} />
       </section>
     </div>
   );
 }
 
-function VendorCard({ vendor, isFavorite, onOpenDetail, onOpenVendor, onToggleFavorite }) {
+function VendorCard({ t, vendor, isFavorite, onOpenDetail, onOpenVendor, onToggleFavorite }) {
   return (
-    <article className="rounded border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <article className="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700">
       <div className="mb-4 flex items-start justify-between gap-3">
-        <button type="button" onClick={() => onOpenDetail(vendor.id)} className="text-left">
-          <p className="text-lg font-semibold">{vendor.name}</p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">{vendor.category}</p>
+        <button type="button" onClick={() => onOpenDetail(vendor.id)} className="min-w-0 text-left">
+          <p className="truncate text-lg font-semibold">{vendor.name}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{vendor.category}</p>
         </button>
         <button
           type="button"
-          title={isFavorite ? "Hapus dari favorit" : "Tambah favorit"}
+          title={isFavorite ? t.removeFavorite : t.addFavorite}
           onClick={() => onToggleFavorite(vendor.id)}
-          className={`grid size-9 shrink-0 place-items-center rounded border ${
+          className={`grid size-9 shrink-0 place-items-center rounded-md border ${
             isFavorite
               ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-900 dark:bg-rose-950"
-              : "border-slate-200 text-slate-500 dark:border-zinc-700 dark:text-zinc-300"
+              : "border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           }`}
         >
           <Heart size={17} fill={isFavorite ? "currentColor" : "none"} />
         </button>
       </div>
-      <p className="min-h-16 text-sm leading-6 text-slate-600 dark:text-zinc-300">{vendor.description}</p>
-      <div className="mt-5 flex items-center justify-between gap-3">
-        <span className={`rounded px-2 py-1 text-xs font-medium ${statusClass(vendor.status)}`}>
-          {vendor.status === "active" ? "Aktif" : "Perlu review"}
-        </span>
-        <button
-          type="button"
-          onClick={() => onOpenVendor(vendor)}
-          className="inline-flex h-10 items-center gap-2 rounded bg-slate-950 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-zinc-100 dark:text-zinc-950"
-        >
-          <ExternalLink size={16} />
-          Buka
-        </button>
+      <p className="min-h-20 text-sm leading-6 text-slate-600 dark:text-neutral-300">{vendor.description}</p>
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-neutral-800">
+        <StatusBadge t={t} status={vendor.status} />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => onOpenDetail(vendor.id)}
+            className="h-9 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+          >
+            {t.viewDetails}
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenVendor(vendor)}
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+          >
+            <ExternalLink size={15} />
+            {t.openPortal}
+          </button>
+        </div>
       </div>
     </article>
   );
 }
 
-function WizardPage({ vendors, onBack, onOpenVendor }) {
+function WizardPage({ t, vendors, onBack, onOpenVendor }) {
   const [deviceType, setDeviceType] = useState("android");
-  const choices = deviceType === "apple" ? vendors.filter((vendor) => vendor.id === "apple") : vendors.filter((vendor) => vendor.category === "Android");
+  const choices =
+    deviceType === "apple"
+      ? vendors.filter((vendor) => vendor.id === "apple")
+      : vendors.filter((vendor) => vendor.category === "Android");
 
   return (
-    <div className="max-w-4xl space-y-7">
-      <BackButton onBack={onBack} />
-      <section>
-        <h1 className="text-3xl font-semibold">Wizard Pemulihan</h1>
-        <p className="mt-2 text-slate-600 dark:text-zinc-300">Pilih jenis perangkat, lalu buka portal vendor resminya.</p>
+    <div className="max-w-5xl space-y-6">
+      <BackButton label={t.back} onBack={onBack} />
+      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <h1 className="text-3xl font-semibold">{t.recoveryWizard}</h1>
+        <p className="mt-2 text-slate-600 dark:text-neutral-300">{t.deviceQuestion}</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            ["android", t.android],
+            ["apple", t.appleDevice],
+            ["unsure", t.unsure]
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setDeviceType(id)}
+              className={`h-12 rounded-md border text-sm font-semibold ${
+                deviceType === id
+                  ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </section>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          ["android", "Android"],
-          ["apple", "iPhone/iPad"],
-          ["unsure", "Tidak yakin"]
-        ].map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setDeviceType(id)}
-            className={`h-12 rounded border text-sm font-semibold ${
-              deviceType === id
-                ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
-                : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        {(deviceType === "unsure" ? vendors : choices).map((vendor) => (
-          <button
-            key={vendor.id}
-            type="button"
-            onClick={() => onOpenVendor(vendor)}
-            className="flex min-h-20 items-center justify-between rounded border border-slate-200 bg-white px-4 text-left hover:border-emerald-500 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <span>
-              <span className="block font-semibold">{vendor.name}</span>
-              <span className="mt-1 block text-sm text-slate-500 dark:text-zinc-400">{vendor.officialUrl}</span>
-            </span>
-            <ExternalLink size={18} />
-          </button>
-        ))}
-      </div>
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">{t.chooseBrand}</h2>
+        <div className="grid gap-3 md:grid-cols-2">
+          {(deviceType === "unsure" ? vendors : choices).map((vendor) => (
+            <button
+              key={vendor.id}
+              type="button"
+              onClick={() => onOpenVendor(vendor)}
+              className="flex min-h-20 items-center justify-between rounded-lg border border-slate-200 bg-white px-4 text-left shadow-sm hover:border-emerald-500 dark:border-neutral-800 dark:bg-neutral-900"
+            >
+              <span className="min-w-0">
+                <span className="block font-semibold">{vendor.name}</span>
+                <span className="mt-1 block truncate text-sm text-slate-500 dark:text-neutral-400">{vendor.officialUrl}</span>
+              </span>
+              <ExternalLink size={18} className="shrink-0" />
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
-function VendorDetailPage({ vendor, isFavorite, onBack, onOpenVendor, onToggleFavorite }) {
+function VendorDetailPage({ t, vendor, isFavorite, onBack, onOpenVendor, onToggleFavorite }) {
   return (
-    <div className="max-w-3xl space-y-6">
-      <BackButton onBack={onBack} />
-      <section className="rounded border border-slate-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="max-w-4xl space-y-5">
+      <BackButton label={t.back} onBack={onBack} />
+      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">{vendor.category}</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{vendor.category}</p>
             <h1 className="mt-1 text-3xl font-semibold">{vendor.name}</h1>
           </div>
           <button
             type="button"
-            title={isFavorite ? "Hapus dari favorit" : "Tambah favorit"}
+            title={isFavorite ? t.removeFavorite : t.addFavorite}
             onClick={() => onToggleFavorite(vendor.id)}
-            className="grid size-10 place-items-center rounded border border-slate-200 dark:border-zinc-700"
+            className="grid size-10 place-items-center rounded-md border border-slate-200 hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
           >
             <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
           </button>
         </div>
-        <p className="mt-5 leading-7 text-slate-600 dark:text-zinc-300">{vendor.description}</p>
+        <p className="mt-5 leading-7 text-slate-600 dark:text-neutral-300">{vendor.description}</p>
         <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
-          <DetailTerm label="Mode login" value={vendor.loginMode === "external_only" ? "Browser eksternal" : "BrowserView terverifikasi"} />
-          <DetailTerm label="Terakhir diverifikasi" value={vendor.lastVerified} />
-          <DetailTerm label="Status" value={vendor.status === "active" ? "Aktif" : "Perlu review region"} />
-          <DetailTerm label="URL resmi" value={vendor.officialUrl} />
+          <DetailTerm label={t.loginMode} value={t.externalLogin} />
+          <DetailTerm label={t.verifiedAt} value={vendor.lastVerified} />
+          <DetailTerm label={t.status} value={vendor.status === "active" ? t.active : t.needsReview} />
+          <DetailTerm label={t.officialUrl} value={vendor.officialUrl} />
         </dl>
         <button
           type="button"
           onClick={() => onOpenVendor(vendor)}
-          className="mt-6 inline-flex h-11 items-center gap-2 rounded bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+          className="mt-6 inline-flex h-11 items-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
         >
           <ExternalLink size={17} />
-          Buka Portal Resmi
+          {t.openPortal}
         </button>
       </section>
     </div>
   );
 }
 
-function EmergencyPage({ checkedItems, setCheckedItems }) {
-  function toggleItem(item) {
-    setCheckedItems((items) => (items.includes(item) ? items.filter((value) => value !== item) : [...items, item]));
+function EmergencyPage({ t, checklistItems, language, checkedItems, setCheckedItems }) {
+  function toggleItem(itemId) {
+    setCheckedItems((items) => (items.includes(itemId) ? items.filter((value) => value !== itemId) : [...items, itemId]));
   }
 
   return (
-    <div className="max-w-3xl space-y-5">
-      <section>
-        <h1 className="text-3xl font-semibold">Emergency Center</h1>
-        <p className="mt-2 text-slate-600 dark:text-zinc-300">Checklist lokal untuk membantu langkah pemulihan tetap runtut.</p>
+    <div className="max-w-4xl space-y-5">
+      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <h1 className="text-3xl font-semibold">{t.checklistTitle}</h1>
+        <p className="mt-2 text-slate-600 dark:text-neutral-300">{t.checklistSubtitle}</p>
       </section>
-      <div className="rounded border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         {checklistItems.map((item) => {
-          const checked = checkedItems.includes(item);
+          const checked = checkedItems.includes(item.id);
+          const label = item.label[language] ?? item.label["id-ID"];
           return (
             <button
-              key={item}
+              key={item.id}
               type="button"
-              onClick={() => toggleItem(item)}
-              className="flex min-h-14 w-full items-center gap-3 border-b border-slate-100 px-4 text-left last:border-b-0 dark:border-zinc-800"
+              onClick={() => toggleItem(item.id)}
+              className="flex min-h-14 w-full items-center gap-3 border-b border-slate-100 px-4 text-left last:border-b-0 hover:bg-slate-50 dark:border-neutral-800 dark:hover:bg-neutral-800"
             >
-              <CheckCircle2 size={20} className={checked ? "text-emerald-600" : "text-slate-300 dark:text-zinc-600"} />
-              <span className={checked ? "text-slate-400 line-through dark:text-zinc-500" : ""}>{item}</span>
+              <CheckCircle2 size={20} className={checked ? "text-emerald-600" : "text-slate-300 dark:text-neutral-600"} />
+              <span className={checked ? "text-slate-400 line-through dark:text-neutral-500" : ""}>{label}</span>
             </button>
           );
         })}
@@ -431,107 +768,156 @@ function EmergencyPage({ checkedItems, setCheckedItems }) {
   );
 }
 
-function SettingsPage({ theme, setTheme, onClearHistory, onClearFavorites }) {
+function SettingsPage({ t, theme, setTheme, language, setLanguage, onClearHistory, onClearFavorites }) {
   return (
-    <div className="max-w-3xl space-y-5">
-      <h1 className="text-3xl font-semibold">Settings</h1>
-      <section className="rounded border border-slate-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-semibold">Tema</p>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Light atau dark mode lokal.</p>
-          </div>
+    <div className="max-w-4xl space-y-5">
+      <h1 className="text-3xl font-semibold">{t.settings}</h1>
+      <section className="grid gap-4 md:grid-cols-2">
+        <SettingBlock title={t.theme} description={theme === "dark" ? t.dark : t.light}>
           <button
             type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="inline-flex h-10 items-center gap-2 rounded border border-slate-200 px-3 text-sm font-semibold dark:border-zinc-700"
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
           >
-            <Moon size={16} />
-            {theme === "dark" ? "Dark" : "Light"}
+            {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
+            {theme === "dark" ? t.dark : t.light}
           </button>
-        </div>
+        </SettingBlock>
+        <SettingBlock title={t.language} description={languages.find((item) => item.id === language)?.label ?? "Indonesia"}>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold outline-none dark:border-neutral-700 dark:bg-neutral-900"
+          >
+            {languages.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </SettingBlock>
       </section>
-      <section className="rounded border border-slate-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <p className="font-semibold">Data lokal</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button type="button" onClick={onClearHistory} className="h-10 rounded border border-slate-200 px-3 text-sm font-semibold dark:border-zinc-700">
-            Clear History
+      <SettingBlock title={t.localData} description={t.privacyCopy}>
+        <div className="flex flex-wrap gap-3">
+          <button type="button" onClick={onClearHistory} className="h-10 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+            {t.clearHistory}
           </button>
-          <button type="button" onClick={onClearFavorites} className="h-10 rounded border border-slate-200 px-3 text-sm font-semibold dark:border-zinc-700">
-            Clear Favorites
+          <button type="button" onClick={onClearFavorites} className="h-10 rounded-md border border-slate-200 px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+            {t.clearFavorites}
           </button>
         </div>
+      </SettingBlock>
+      <SettingBlock title={t.linkHealth} description={t.huaweiReview} />
+    </div>
+  );
+}
+
+function AboutPage({ t }) {
+  return (
+    <div className="max-w-4xl space-y-5">
+      <h1 className="text-3xl font-semibold">{t.about}</h1>
+      <section className="rounded-lg border border-slate-200 bg-white p-6 leading-7 text-slate-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+        <p>{t.aboutCopy}</p>
+        <p className="mt-4">{t.aboutSafety}</p>
+      </section>
+      <section className="grid gap-3 md:grid-cols-3">
+        <MetricCard label={t.secureDefaults} value="shell.openExternal" />
+        <MetricCard label={t.localOnly} value="localStorage" />
+        <MetricCard label={t.noTracking} value="no backend" />
       </section>
     </div>
   );
 }
 
-function AboutPage() {
+function SecuritySummary({ t }) {
   return (
-    <div className="max-w-3xl space-y-5">
-      <h1 className="text-3xl font-semibold">Tentang DeviceHub</h1>
-      <section className="rounded border border-slate-200 bg-white p-5 leading-7 text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
-        <p>
-          DeviceHub adalah direktori tidak resmi untuk portal resmi pemulihan perangkat. Aplikasi ini tidak berafiliasi
-          dengan Google, Apple, Samsung, Xiaomi, Huawei, OPPO, atau vendor lain.
-        </p>
-        <p className="mt-4">
-          DeviceHub tidak melacak lokasi, tidak meminta kredensial, dan tidak menggantikan verifikasi resmi vendor.
-          Semua portal dibuka melalui browser eksternal secara default.
-        </p>
-      </section>
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <p className="text-sm font-semibold">{t.privacyTitle}</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-neutral-400">{t.privacyCopy}</p>
     </div>
   );
 }
 
-function BookmarkPanel({ title, vendors, empty, onOpenDetail }) {
+function MetricCard({ label, value }) {
   return (
-    <section>
-      <h2 className="mb-3 text-xl font-semibold">{title}</h2>
-      <div className="rounded border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        {vendors.length === 0 && <p className="px-4 py-5 text-sm text-slate-500 dark:text-zinc-400">{empty}</p>}
-        {vendors.map((vendor) => (
-          <button
-            key={vendor.id}
-            type="button"
-            onClick={() => onOpenDetail(vendor.id)}
-            className="flex min-h-14 w-full items-center justify-between border-b border-slate-100 px-4 text-left last:border-b-0 dark:border-zinc-800"
-          >
-            <span className="font-medium">{vendor.name}</span>
-            <span className="text-sm text-slate-500 dark:text-zinc-400">{vendor.category}</span>
-          </button>
-        ))}
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{label}</p>
+      <p className="mt-2 break-words text-lg font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function BookmarkPanel({ title, vendors, empty, onOpenDetail, icon: Icon }) {
+  return (
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="flex h-12 items-center gap-2 border-b border-slate-100 px-4 dark:border-neutral-800">
+        <Icon size={17} />
+        <h2 className="font-semibold">{title}</h2>
       </div>
+      {vendors.length === 0 && <p className="px-4 py-5 text-sm text-slate-500 dark:text-neutral-400">{empty}</p>}
+      {vendors.map((vendor) => (
+        <button
+          key={vendor.id}
+          type="button"
+          onClick={() => onOpenDetail(vendor.id)}
+          className="flex min-h-14 w-full items-center justify-between border-b border-slate-100 px-4 text-left last:border-b-0 hover:bg-slate-50 dark:border-neutral-800 dark:hover:bg-neutral-800"
+        >
+          <span className="font-medium">{vendor.name}</span>
+          <span className="text-sm text-slate-500 dark:text-neutral-400">{vendor.category}</span>
+        </button>
+      ))}
     </section>
   );
 }
 
 function DetailTerm({ label, value }) {
   return (
-    <div className="rounded bg-slate-50 p-3 dark:bg-zinc-950">
-      <dt className="text-xs font-semibold uppercase text-slate-500 dark:text-zinc-500">{label}</dt>
-      <dd className="mt-1 break-words text-slate-800 dark:text-zinc-200">{value}</dd>
+    <div className="rounded-md bg-slate-50 p-3 dark:bg-neutral-950">
+      <dt className="text-xs font-semibold uppercase text-slate-500 dark:text-neutral-500">{label}</dt>
+      <dd className="mt-1 break-words text-slate-800 dark:text-neutral-200">{value}</dd>
     </div>
   );
 }
 
-function BackButton({ onBack }) {
+function SettingBlock({ title, description, children }) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <p className="font-semibold">{title}</p>
+          {description && <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-neutral-400">{description}</p>}
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function BackButton({ label, onBack }) {
   return (
     <button
       type="button"
       onClick={onBack}
-      className="inline-flex h-10 items-center gap-2 rounded border border-slate-200 px-3 text-sm font-semibold dark:border-zinc-700"
+      className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold hover:bg-slate-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800"
     >
       <ArrowLeft size={17} />
-      Kembali
+      {label}
     </button>
   );
 }
 
-function statusClass(status) {
-  if (status === "active") {
-    return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300";
-  }
+function StatusBadge({ t, status }) {
+  const isActive = status === "active";
 
-  return "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300";
+  return (
+    <span
+      className={`rounded-md px-2 py-1 text-xs font-semibold ${
+        isActive
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+          : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+      }`}
+    >
+      {isActive ? t.active : t.needsReview}
+    </span>
+  );
 }
