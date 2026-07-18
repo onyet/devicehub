@@ -19,6 +19,12 @@ import {
   X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import appleLogo from "../../icons/apple-logo-svgrepo-com.svg";
+import googleLogo from "../../icons/google-icon-logo-svgrepo-com.svg";
+import huaweiLogo from "../../icons/huawei.svg";
+import oppoLogo from "../../icons/OPPO_logo.svg";
+import samsungLogo from "../../icons/samsung-s-svgrepo-com.svg";
+import xiaomiLogo from "../../icons/xiaomi-mi-logo-icon.svg";
 import fallbackVendors from "../data/vendors.json";
 
 const api = window.devicehub ?? {
@@ -709,8 +715,17 @@ function VendorCard({ t, vendor, onOpenDetail, onOpenVendor }) {
 }
 
 function VendorLogo({ meta }) {
-  if (meta.id === "oppo") {
-    return <span className="flex size-12 shrink-0 items-center justify-center text-[19px] font-extrabold text-emerald-600">oppo</span>;
+  if (meta.logoUrl) {
+    return (
+      <span className="flex size-12 shrink-0 items-center justify-center">
+        <img
+          src={meta.logoUrl}
+          alt=""
+          aria-hidden="true"
+          className={`block max-h-10 max-w-11 object-contain ${meta.logoImageClass ?? ""}`}
+        />
+      </span>
+    );
   }
 
   return (
@@ -727,6 +742,7 @@ function getVendorPresentation(vendor) {
       summary: "Temukan, kunci, atau hapus perangkat Android.",
       mark: "G",
       logoClass: "bg-white text-blue-600",
+      logoUrl: googleLogo,
       id: "google"
     },
     samsung: {
@@ -734,6 +750,7 @@ function getVendorPresentation(vendor) {
       summary: "Temukan perangkat Galaxy Anda.",
       mark: "S",
       logoClass: "bg-blue-50 text-blue-600 dark:bg-blue-950",
+      logoUrl: samsungLogo,
       id: "samsung"
     },
     xiaomi: {
@@ -741,6 +758,7 @@ function getVendorPresentation(vendor) {
       summary: "Temukan, kunci, atau hapus perangkat Xiaomi.",
       mark: "mi",
       logoClass: "bg-orange-500 text-white text-[19px]",
+      logoUrl: xiaomiLogo,
       id: "xiaomi"
     },
     huawei: {
@@ -748,6 +766,7 @@ function getVendorPresentation(vendor) {
       summary: "Temukan perangkat Huawei Anda.",
       mark: "H",
       logoClass: "bg-red-50 text-red-600 dark:bg-red-950",
+      logoUrl: huaweiLogo,
       id: "huawei"
     },
     oppo: {
@@ -755,6 +774,8 @@ function getVendorPresentation(vendor) {
       summary: "Temukan perangkat OPPO Anda.",
       mark: "oppo",
       logoClass: "text-emerald-600",
+      logoUrl: oppoLogo,
+      logoImageClass: "max-w-14",
       id: "oppo"
     },
     apple: {
@@ -762,6 +783,8 @@ function getVendorPresentation(vendor) {
       summary: "Temukan perangkat iPhone, iPad, Mac, dan lainnya.",
       mark: "●",
       logoClass: "bg-white text-black dark:bg-neutral-950 dark:text-white",
+      logoUrl: appleLogo,
+      logoImageClass: "dark:invert",
       id: "apple"
     }
   };
