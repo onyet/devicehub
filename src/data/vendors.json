@@ -70,5 +70,17 @@
     "countryAvailability": ["needs_region_review"],
     "lastVerified": "2026-07-19",
     "status": "needs_review"
+  },
+  {
+    "id": "haveibeenpwned",
+    "name": "Have I Been Pwned",
+    "category": "privacy",
+    "description": "Layanan self-check resmi untuk mengecek apakah alamat email pernah muncul dalam data breach.",
+    "logo": "",
+    "officialUrl": "https://haveibeenpwned.com",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "active"
   }
 ]
