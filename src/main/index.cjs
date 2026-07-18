@@ -3,7 +3,7 @@ const path = require("node:path");
 const { getVendors } = require("./vendors.cjs");
 
 const isDev = !app.isPackaged;
-const appIconPath = path.join(__dirname, "../../icons/android/res/mipmap-hdpi/ic_launcher.png");
+const appIconPath = path.join(__dirname, "../../icons/android/res/mipmap-xxhdpi/ic_launcher.png");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
