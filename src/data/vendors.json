@@ -1,0 +1,74 @@
+[
+  {
+    "id": "google",
+    "name": "Google",
+    "category": "Android",
+    "description": "Find Hub untuk menemukan, mengunci, membunyikan, atau menghapus perangkat Android.",
+    "logo": "logos/google.svg",
+    "officialUrl": "https://www.google.com/android/find",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "active"
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "category": "iPhone/iPad",
+    "description": "Find Devices via iCloud untuk perangkat Apple yang terhubung ke Apple ID.",
+    "logo": "logos/apple.svg",
+    "officialUrl": "https://www.icloud.com/find",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "active"
+  },
+  {
+    "id": "samsung",
+    "name": "Samsung",
+    "category": "Android",
+    "description": "SmartThings Find untuk menemukan perangkat Galaxy yang tersambung ke akun Samsung.",
+    "logo": "logos/samsung.svg",
+    "officialUrl": "https://smartthingsfind.samsung.com",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "active"
+  },
+  {
+    "id": "xiaomi",
+    "name": "Xiaomi",
+    "category": "Android",
+    "description": "Xiaomi Cloud Find device untuk Xiaomi, Redmi, dan POCO.",
+    "logo": "logos/xiaomi.svg",
+    "officialUrl": "https://i.mi.com",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "active"
+  },
+  {
+    "id": "huawei",
+    "name": "Huawei",
+    "category": "Android",
+    "description": "HUAWEI Cloud Find Device untuk perangkat Huawei yang didukung.",
+    "logo": "logos/huawei.svg",
+    "officialUrl": "https://cloud.huawei.com",
+    "loginMode": "external_only",
+    "countryAvailability": ["global"],
+    "lastVerified": "2026-07-19",
+    "status": "needs_review"
+  },
+  {
+    "id": "oppo",
+    "name": "OPPO",
+    "category": "Android",
+    "description": "Portal cloud OPPO untuk fitur Find device pada pasar yang didukung.",
+    "logo": "logos/oppo.svg",
+    "officialUrl": "https://cloud.oppo.com/findindex.html",
+    "loginMode": "external_only",
+    "countryAvailability": ["needs_region_review"],
+    "lastVerified": "2026-07-19",
+    "status": "needs_review"
+  }
+]
