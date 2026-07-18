@@ -3,7 +3,7 @@ const path = require("node:path");
 const { getVendors } = require("./vendors.cjs");
 
 const isDev = !app.isPackaged;
-const appIconPath = path.join(__dirname, "../../icons/android/play_store_512.png");
+const appIconPath = path.join(__dirname, "../../icons/android/res/mipmap-hdpi/ic_launcher.png");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -56,8 +56,8 @@ app.whenReady().then(() => {
     return true;
   });
 
-  ipcMain.handle("window:close", (event) => {
-    BrowserWindow.fromWebContents(event.sender)?.close();
+  ipcMain.handle("window:close", () => {
+    app.quit();
   });
 
   ipcMain.handle("portal:openExternal", async (_event, url) => {
