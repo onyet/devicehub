@@ -5,6 +5,11 @@
   "description": "Unofficial desktop directory for official device recovery portals.",
   "type": "module",
   "main": "src/main/index.cjs",
+  "author": {
+    "email": "onyetcorp@gmail.com",
+    "name": "Dian Mukti Wibowo",
+    "url": "https://onyet.id"
+  },
   "scripts": {
     "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && node scripts/start_electron.cjs .\"",
     "dev:renderer": "vite",
@@ -14,10 +19,10 @@
     "check:links": "node scripts/link_checker.js"
   },
   "build": {
-    "appId": "id.devicehub.app",
+    "appId": "id.onyet.app.devicehub",
     "productName": "DeviceHub",
     "files": [
-      "dist/**",
+      "dist/renderer/**",
       "src/main/**",
       "src/preload/**",
       "src/data/**",
@@ -25,7 +30,8 @@
       "package.json"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "release"
     },
     "publish": [
       {
@@ -42,7 +48,7 @@
       ]
     },
     "win": {
-      "icon": "icons/web/favicon.ico",
+      "icon": "assets/favicon.ico",
       "target": "nsis"
     },
     "linux": {
